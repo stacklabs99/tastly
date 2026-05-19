@@ -1,101 +1,76 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Sparkles, QrCode, BarChart3, ChevronRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-dark-950 flex flex-col">
+      {/* Hero */}
+      <main className="flex-1 flex flex-col items-center justify-center px-6 text-center py-20">
+        <div className="inline-flex items-center gap-2 bg-gold-500/10 border border-gold-500/20 rounded-full px-4 py-1.5 mb-8">
+          <Sparkles className="w-3.5 h-3.5 text-gold-400" />
+          <span className="text-gold-400 text-sm font-medium">
+            Menu digital com IA
+          </span>
+        </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <h1 className="font-serif text-5xl md:text-7xl font-bold text-dark-50 leading-tight mb-6">
+          Tastly
+        </h1>
+
+        <p className="text-dark-300 text-lg md:text-xl max-w-lg leading-relaxed mb-10">
+          O menu digital que aumenta o ticket médio do seu restaurante com
+          recomendações inteligentes de vinho, entradas e sobremesas.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Link
+            href="/menu/casa-do-mar"
+            className="flex items-center gap-2 bg-gold-500 text-dark-950 px-6 py-3 rounded-full font-semibold text-sm hover:bg-gold-400 transition-colors"
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
+            Ver demo do menu
+            <ChevronRight className="w-4 h-4" />
+          </Link>
           <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#features"
+            className="flex items-center gap-2 border border-white/10 text-dark-200 px-6 py-3 rounded-full text-sm hover:bg-white/5 transition-colors"
           >
-            Read our docs
+            Saber mais
           </a>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      {/* Features */}
+      <section id="features" className="px-6 pb-20 max-w-4xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            {
+              icon: <Sparkles className="w-5 h-5 text-gold-400" />,
+              title: "IA de Maridagem",
+              desc: "Sugestões automáticas de vinho, entrada e sobremesa para cada prato selecionado.",
+            },
+            {
+              icon: <QrCode className="w-5 h-5 text-gold-400" />,
+              title: "QR Code Instantâneo",
+              desc: "Cada restaurante tem o seu link único acessível pelo telemóvel sem instalar app.",
+            },
+            {
+              icon: <BarChart3 className="w-5 h-5 text-gold-400" />,
+              title: "Dashboard Completo",
+              desc: "Gere pratos, preços e fotos em tempo real. Veja estatísticas de pratos mais vistos.",
+            },
+          ].map((f) => (
+            <div key={f.title} className="glass-card rounded-2xl p-5">
+              <div className="w-10 h-10 rounded-xl bg-gold-500/10 flex items-center justify-center mb-3">
+                {f.icon}
+              </div>
+              <h3 className="font-serif text-dark-100 font-semibold mb-1.5">
+                {f.title}
+              </h3>
+              <p className="text-dark-400 text-sm leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

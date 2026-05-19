@@ -1,0 +1,657 @@
+"use client";
+
+import { useEffect, useState, useRef, useCallback } from "react";
+import Image from "next/image";
+import { X, Sparkles, Wine, Salad, Cake, UtensilsCrossed, ChevronDown, RefreshCw } from "lucide-react";
+import type { Dish, AIRecommendation, DishType, Category } from "@/types";
+import { AllergenBadge } from "@/components/ui/AllergenBadge";
+import { NutritionBar } from "@/components/ui/NutritionBar";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+type Props = {
+  dish: Dish | null;
+  categories: Category[];
+  onClose: () => void;
+};
+
+function getCategoryType(categoryName: string): DishType {
+  const n = categoryName.toLowerCase();
+  if (n.includes("vinho") || n.includes("wine")) return "wine";
+  if (n.includes("entrada") || n.includes("starter")) return "starter";
+  if (n.includes("sobremesa") || n.includes("dessert")) return "dessert";
+  if (n.includes("bebida") || n.includes("drink") || n.includes("cocktail")) return "beverage";
+  if (n.includes("principal") || n.includes("main")) return "main";
+  return "other";
+}
+
+function getFallbackForDish(dish: Dish, dishType: DishType): AIRecommendation {
+  const tags = dish.tags.map((t) => t.toLowerCase());
+  const name = dish.name.toLowerCase();
+  const isSeafood = tags.includes("peixe") || name.includes("bacalhau") || name.includes("polvo") || name.includes("robalo") || name.includes("lingueirão");
+  const isMeat = tags.includes("carne") || name.includes("porco") || name.includes("borrego");
+
+  const winesSeafood = [
+    { name: "Esporão Reserva Branco", description: "Alentejo, 2022", why: "A acidez fresca potencia a delicadeza do marisco" },
+    { name: "Niepoort Nat'Cool Rosé", description: "Douro, 2023", why: "A frescura do rosé combina sem sobrepor os sabores do mar" },
+  ];
+  const winesMeat = [
+    { name: "Quinta do Crasto Reserva", description: "Douro, 2021", why: "Taninos maduros e fruta escura — parceiros clássicos de carnes intensas" },
+    { name: "Herdade do Esporão Tinto", description: "Alentejo, 2020", why: "Estrutura alentejana que aguenta a gordura e o sabor da carne" },
+  ];
+  const winesDefault = [
+    { name: "Quinta do Crasto Reserva", description: "Douro, 2021", why: "Estrutura e elegância que complementam os sabores do prato" },
+    { name: "Esporão Reserva Branco", description: "Alentejo, 2022", why: "Frescura e acidez para equilibrar a intensidade do prato" },
+  ];
+
+  const starterDefault = [{ name: "Polvo à Lagareiro", description: "Com batata assada e azeite", why: "Entrada elegante que prepara o palato para sabores intensos" }];
+  const mainDefault = [
+    { name: "Bacalhau à Brás", description: "Com batata palha e ovos", why: "Prato clássico com intensidade equilibrada" },
+    { name: "Robalo Grelhado", description: "Com legumes da época", why: "Opção mais leve que complementa bem" },
+  ];
+  const dessertDefault = [{ name: "Tarte de Limão Merengada", description: "Com merengue tostado", why: "A acidez do limão fecha a refeição com elegância" }];
+
+  if (dishType === "wine" || dishType === "beverage") {
+    return {
+      wines: [],
+      starters: starterDefault,
+      mains: mainDefault,
+      desserts: dessertDefault,
+      reasoning: "Este vinho abre possibilidades — aqui estão os pratos que melhor o acompanham.",
+    };
+  }
+
+  if (dishType === "starter") {
+    return {
+      wines: isSeafood ? winesSeafood : winesDefault,
+      starters: [],
+      mains: mainDefault,
+      desserts: dessertDefault,
+      reasoning: "Depois desta entrada, eis o que melhor completa a refeição.",
+    };
+  }
+
+  if (dishType === "dessert") {
+    return {
+      wines: [{ name: "Niepoort 10 Anos Tawny", description: "Porto", why: "A doçura oxidativa amplifica as notas caramelizadas da sobremesa" }],
+      starters: starterDefault,
+      mains: mainDefault,
+      desserts: [],
+      reasoning: "Para esta sobremesa, um Porto Tawny é a escolha clássica.",
+    };
+  }
+
+  // main or other
+  return {
+    wines: isSeafood ? winesSeafood : isMeat ? winesMeat : winesDefault,
+    starters: starterDefault,
+    mains: [],
+    desserts: dessertDefault,
+    reasoning: isSeafood
+      ? "Pratos de mar pedem vinhos brancos com boa acidez — Douro e Alentejo lideram."
+      : isMeat
+      ? "Carnes intensas exigem tintos com estrutura — Douro e Alentejo são as escolhas certas."
+      : "Sugestões baseadas no perfil aromático e intensidade do prato.",
+  };
+}
+
+export function DishDetailSheet({ dish, categories, onClose }: Props) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [aiRec, setAiRec] = useState<AIRecommendation | null>(null);
+  const [loadingAI, setLoadingAI] = useState(false);
+  const [activeTab, setActiveTab] = useState<"info" | "ai">("info");
+  const { tr } = useLanguage();
+
+  const dishType: DishType = dish
+    ? getCategoryType(categories.find((c) => c.id === dish.category_id)?.name ?? "")
+    : "other";
+
+  // Manual pairings take priority — convert to AIRecommendation shape
+  const manualRec: AIRecommendation | null = dish?.manual_pairings &&
+    Object.values(dish.manual_pairings).some((arr) => arr.length > 0)
+    ? { ...dish.manual_pairings, reasoning: "" }
+    : null;
+
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const dragStartY = useRef(0);
+  const dragCurrentY = useRef(0);
+  const isDragging = useRef(false);
+
+  useEffect(() => {
+    if (dish) {
+      setIsVisible(true);
+      setAiRec(null);
+      setLoadingAI(false);
+      setActiveTab("info");
+      document.body.style.overflow = "hidden";
+    } else {
+      setIsVisible(false);
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [dish]);
+
+  const handleClose = useCallback(() => {
+    setIsVisible(false);
+    setTimeout(onClose, 320);
+  }, [onClose]);
+
+  const fetchAIRecommendations = useCallback(async () => {
+    if (!dish || loadingAI) return;
+    setLoadingAI(true);
+    setActiveTab("ai");
+    try {
+      const res = await fetch("/api/recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dish, dishType }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error("No data");
+      setAiRec({
+        wines: Array.isArray(data.wines) ? data.wines : [],
+        starters: Array.isArray(data.starters) ? data.starters : [],
+        mains: Array.isArray(data.mains) ? data.mains : [],
+        desserts: Array.isArray(data.desserts) ? data.desserts : [],
+        reasoning: data.reasoning ?? "",
+      });
+    } catch {
+      setAiRec(getFallbackForDish(dish, dishType));
+    } finally {
+      setLoadingAI(false);
+    }
+  }, [dish, dishType, loadingAI]);
+
+  const handleAITabClick = useCallback(() => {
+    if (manualRec) {
+      setActiveTab("ai");
+      return;
+    }
+    if (loadingAI) return;
+    if (!aiRec) {
+      fetchAIRecommendations();
+    } else {
+      setActiveTab("ai");
+    }
+  }, [manualRec, aiRec, loadingAI, fetchAIRecommendations]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    dragStartY.current = e.touches[0].clientY;
+    dragCurrentY.current = e.touches[0].clientY;
+    isDragging.current = true;
+    if (sheetRef.current) {
+      sheetRef.current.style.transition = "none";
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    dragCurrentY.current = e.touches[0].clientY;
+    const diff = dragCurrentY.current - dragStartY.current;
+    if (diff > 0 && sheetRef.current) {
+      sheetRef.current.style.transform = `translateY(${diff}px)`;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    isDragging.current = false;
+    const diff = dragCurrentY.current - dragStartY.current;
+    if (sheetRef.current) {
+      sheetRef.current.style.transition = "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)";
+    }
+    if (diff > 120) {
+      handleClose();
+    } else if (sheetRef.current) {
+      sheetRef.current.style.transform = "";
+    }
+  };
+
+  if (!dish) return null;
+
+  const hasNutrition = dish.calories != null || dish.proteins != null || dish.carbs != null || dish.fat != null;
+
+  return (
+    <>
+      <div
+        className={`fixed inset-0 bg-black/70 backdrop-blur-sm z-40 transition-opacity duration-300 ${
+          isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={handleClose}
+      />
+
+      <div
+        ref={sheetRef}
+        className={`fixed bottom-0 left-0 right-0 z-50 max-h-[92dvh] flex flex-col rounded-t-3xl bg-[#1a1916] border-t border-white/[0.08] ${
+          isVisible ? "translate-y-0" : "translate-y-full"
+        }`}
+        style={{ transition: "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)" }}
+      >
+        {/* Drag handle */}
+        <div
+          className="flex flex-col items-center pt-3 pb-1 flex-shrink-0 touch-none select-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div className="w-10 h-1 bg-white/20 rounded-full" />
+        </div>
+
+        <div className="overflow-y-auto flex-1 overscroll-contain">
+          {/* Hero image */}
+          <div className="relative mx-4 rounded-2xl overflow-hidden mb-4 bg-[#2a2926]" style={{ aspectRatio: "16/9" }}>
+            {dish.image_url ? (
+              <Image
+                src={dish.image_url}
+                alt={dish.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 600px"
+                priority
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-6xl opacity-20">🍽️</div>
+            )}
+            <button
+              onClick={handleClose}
+              className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center active:scale-95 transition-transform"
+              aria-label={tr("close")}
+            >
+              <X className="w-4 h-4 text-white" />
+            </button>
+          </div>
+
+          {/* Header */}
+          <div className="px-4 mb-4">
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="font-serif text-[#f5f5f0] text-2xl font-semibold leading-tight flex-1">
+                {dish.name}
+              </h2>
+              <span className="text-[#e6a81e] font-bold text-xl whitespace-nowrap">
+                {dish.price.toFixed(2)} €
+              </span>
+            </div>
+            <p className="text-[#96967f] text-sm leading-relaxed mt-2">{dish.description}</p>
+
+            {dish.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {dish.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-xs px-2.5 py-0.5 rounded-full bg-[#e6a81e]/10 text-[#e6a81e] border border-[#e6a81e]/20"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Pairing CTA — manual or AI */}
+          <div className="px-4 mb-4">
+            {manualRec ? (
+              /* Manual pairings available — show prominent button */
+              <button
+                onClick={() => setActiveTab("ai")}
+                className="w-full flex items-center gap-3 active:scale-[0.98] transition-transform rounded-2xl p-4"
+                style={{
+                  background: "linear-gradient(135deg, rgba(126,184,164,0.14) 0%, rgba(126,184,164,0.05) 100%)",
+                  border: "1px solid rgba(126,184,164,0.28)",
+                }}
+              >
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(126,184,164,0.16)" }}>
+                  <Sparkles className="w-5 h-5" style={{ color: "#7eb8a4" }} />
+                </div>
+                <div className="text-left flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-[#e8e8e0]">Sugestão da Casa</p>
+                  <p className="text-xs mt-0.5 text-[#626250]">Selecionado pelo chef</p>
+                </div>
+                <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${activeTab === "ai" ? "rotate-180" : ""}`} style={{ color: "rgba(126,184,164,0.6)" }} />
+              </button>
+            ) : (
+              /* No manual pairings — AI button */
+              <button
+                onClick={aiRec ? () => setActiveTab("ai") : fetchAIRecommendations}
+                disabled={loadingAI}
+                className="w-full flex items-center gap-3 active:scale-[0.98] transition-transform disabled:opacity-70 rounded-2xl p-4"
+                style={{
+                  background: "linear-gradient(135deg, rgba(230,168,30,0.14) 0%, rgba(230,168,30,0.05) 100%)",
+                  border: "1px solid rgba(230,168,30,0.28)",
+                }}
+              >
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(230,168,30,0.16)" }}>
+                  {loadingAI
+                    ? <span className="w-5 h-5 border-2 border-[#e6a81e]/30 border-t-[#e6a81e] rounded-full animate-spin" />
+                    : <Sparkles className="w-5 h-5 text-[#e6a81e]" />}
+                </div>
+                <div className="text-left flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-[#e8e8e0]">
+                    {loadingAI ? tr("ai_loading") : aiRec ? tr("ai_cta_done") : tr("ai_cta_idle")}
+                  </p>
+                  <p className="text-xs mt-0.5 text-[#626250]">
+                    {aiRec ? tr("ai_sub_after") : tr("ai_sub_before")}
+                  </p>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-[#e6a81e]/60 transition-transform flex-shrink-0 ${activeTab === "ai" ? "rotate-180" : ""}`} />
+              </button>
+            )}
+          </div>
+
+          {/* Tabs */}
+          <div className="px-4">
+            <div className="flex border-b border-white/[0.08] mb-4">
+              <button
+                onClick={() => setActiveTab("info")}
+                className={`pb-3 mr-6 text-sm font-medium transition-colors relative ${
+                  activeTab === "info" ? "text-[#e6a81e]" : "text-[#7a7a62]"
+                }`}
+              >
+                {tr("tab_info")}
+                {activeTab === "info" && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#e6a81e] rounded-full" />
+                )}
+              </button>
+              <button
+                onClick={handleAITabClick}
+                className={`pb-3 text-sm font-medium transition-colors flex items-center gap-1.5 relative ${
+                  activeTab === "ai" ? "text-[#e6a81e]" : "text-[#7a7a62]"
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                {tr("tab_ai")}
+                {(aiRec || manualRec) && (
+                  <span
+                    className="ml-1 w-1.5 h-1.5 rounded-full"
+                    style={{ background: manualRec ? "#7eb8a4" : "#e6a81e" }}
+                    title="Recomendações disponíveis"
+                  />
+                )}
+                {activeTab === "ai" && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#e6a81e] rounded-full" />
+                )}
+              </button>
+            </div>
+
+            {/* Info tab */}
+            {activeTab === "info" && (
+              <div className="space-y-5 pb-10 animate-fade-in">
+                {hasNutrition && (
+                  <div>
+                    <h3 className="text-[#d4d4c8] text-xs font-semibold uppercase tracking-widest mb-3">
+                      {tr("nutrition")}
+                    </h3>
+                    <div className="glass-card rounded-xl p-4 space-y-3">
+                      {dish.calories != null && (
+                        <div className="flex justify-between items-center pb-3 border-b border-white/[0.05]">
+                          <span className="text-[#96967f] text-sm">{tr("calories")}</span>
+                          <span className="text-[#f5f5f0] font-bold text-lg">
+                            {dish.calories}{" "}
+                            <span className="text-[#7a7a62] text-sm font-normal">kcal</span>
+                          </span>
+                        </div>
+                      )}
+                      {dish.proteins != null && (
+                        <NutritionBar label={tr("proteins")} value={dish.proteins} unit="g" max={60} color="bg-blue-400" />
+                      )}
+                      {dish.carbs != null && (
+                        <NutritionBar label={tr("carbs")} value={dish.carbs} unit="g" max={80} color="bg-orange-400" />
+                      )}
+                      {dish.fat != null && (
+                        <NutritionBar label={tr("fat")} value={dish.fat} unit="g" max={50} color="bg-yellow-400" />
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {dish.allergens.length > 0 && (
+                  <div>
+                    <h3 className="text-[#d4d4c8] text-xs font-semibold uppercase tracking-widest mb-3">
+                      {tr("allergens")}
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {dish.allergens.map((a) => (
+                        <AllergenBadge key={a} allergen={a} size="md" />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {!hasNutrition && dish.allergens.length === 0 && (
+                  <p className="text-[#484640] text-sm text-center py-8">
+                    {tr("no_info")}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* AI tab */}
+            {activeTab === "ai" && (() => {
+              const activeRec = manualRec ?? aiRec;
+              const isManual = !!manualRec;
+              const accentColor = isManual ? "#7eb8a4" : "#e6a81e";
+
+              return (
+                <div className="pb-10 animate-fade-in">
+                  {loadingAI ? (
+                    <AILoadingSkeleton analyzing={tr("ai_analyzing")} />
+                  ) : activeRec ? (
+                    <div className="space-y-6">
+                      {/* Header card */}
+                      <div
+                        className="rounded-2xl p-4"
+                        style={{
+                          background: `linear-gradient(135deg, ${accentColor}14 0%, ${accentColor}08 100%)`,
+                          border: `1px solid ${accentColor}29`,
+                        }}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <Sparkles className="w-3.5 h-3.5" style={{ color: accentColor }} />
+                          <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: `${accentColor}b3` }}>
+                            {isManual ? "Sugestão da Casa" : tr("ai_sommelier")}
+                          </span>
+                        </div>
+                        <p className="text-[#96967f] text-sm leading-relaxed italic">
+                          &ldquo;{activeRec.reasoning || "Sugestões de maridagem cuidadosamente selecionadas pelo chef."}&rdquo;
+                        </p>
+                      </div>
+
+                      {activeRec.wines?.length > 0 && dishType !== "wine" && dishType !== "beverage" && (
+                        <AISection icon={<Wine className="w-4 h-4" />} title={tr("ai_wines")} whyLabel={tr("ai_why")} accentColor="#e6a81e" items={activeRec.wines} />
+                      )}
+                      {activeRec.starters?.length > 0 && dishType !== "starter" && (
+                        <AISection icon={<Salad className="w-4 h-4" />} title={tr("ai_starters")} whyLabel={tr("ai_why")} accentColor="#7eb8a4" items={activeRec.starters} />
+                      )}
+                      {activeRec.mains?.length > 0 && dishType !== "main" && dishType !== "other" && (
+                        <AISection icon={<UtensilsCrossed className="w-4 h-4" />} title="Pratos a Combinar" whyLabel={tr("ai_why")} accentColor="#9b8ed6" items={activeRec.mains} />
+                      )}
+                      {activeRec.desserts?.length > 0 && dishType !== "dessert" && (
+                        <AISection icon={<Cake className="w-4 h-4" />} title={tr("ai_desserts")} whyLabel={tr("ai_why")} accentColor="#c89b7b" items={activeRec.desserts} />
+                      )}
+
+                      {/* Footer actions */}
+                      <div className="flex items-center justify-between pt-1">
+                        {isManual ? (
+                          <button
+                            onClick={() => { setAiRec(null); fetchAIRecommendations(); }}
+                            className="flex items-center gap-1.5 text-[#626250] text-xs active:opacity-60 transition-opacity"
+                          >
+                            <Sparkles className="w-3 h-3" />
+                            Gerar sugestão automática
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => { setAiRec(null); fetchAIRecommendations(); }}
+                            className="flex items-center gap-1.5 text-[#626250] text-xs active:opacity-60 transition-opacity"
+                          >
+                            <RefreshCw className="w-3 h-3" />
+                            {tr("ai_regenerate")}
+                          </button>
+                        )}
+                        <span className="text-[10px] text-[#3a3a32]">
+                          {tr("ai_credit")}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <AIEmptyState
+                      onRequest={fetchAIRecommendations}
+                      title={tr("ai_empty_title")}
+                      desc={tr("ai_empty_desc")}
+                      cta={tr("ai_empty_cta")}
+                      credit={tr("ai_credit")}
+                    />
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function AILoadingSkeleton({ analyzing }: { analyzing: string }) {
+  return (
+    <div className="space-y-5">
+      <div
+        className="rounded-2xl p-4"
+        style={{ background: "rgba(230,168,30,0.05)", border: "1px solid rgba(230,168,30,0.1)" }}
+      >
+        <div className="skeleton h-3 w-24 rounded mb-3" />
+        <div className="skeleton h-3 w-full rounded mb-1.5" />
+        <div className="skeleton h-3 w-4/5 rounded" />
+      </div>
+
+      {(["Vinhos Sugeridos", "Entradas a Combinar", "Sobremesas Ideais"] as const).map((label, i) => (
+        <div key={label} style={{ animationDelay: `${i * 0.1}s` }}>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="skeleton w-4 h-4 rounded" />
+            <div className="skeleton h-2.5 w-28 rounded" />
+          </div>
+          <div className="space-y-2">
+            {[0, 1].map((j) => (
+              <div
+                key={j}
+                className="rounded-xl p-3.5"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                <div className="flex gap-3">
+                  <div className="skeleton w-7 h-7 rounded-lg flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="skeleton h-3 w-3/4 rounded" />
+                    <div className="skeleton h-2.5 w-1/2 rounded" />
+                    <div className="skeleton h-2.5 w-full rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <p className="text-center text-[#484640] text-xs pt-1">
+        {analyzing}
+      </p>
+    </div>
+  );
+}
+
+function AIEmptyState({
+  onRequest, title, desc, cta, credit,
+}: {
+  onRequest: () => void;
+  title: string;
+  desc: string;
+  cta: string;
+  credit: string;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center py-10 gap-4">
+      <div
+        className="w-16 h-16 rounded-2xl flex items-center justify-center"
+        style={{
+          background: "linear-gradient(135deg, rgba(230,168,30,0.12) 0%, rgba(230,168,30,0.04) 100%)",
+          border: "1px solid rgba(230,168,30,0.18)",
+        }}
+      >
+        <Sparkles className="w-7 h-7 text-[#e6a81e] opacity-70" />
+      </div>
+      <div className="text-center space-y-1">
+        <p className="text-sm font-semibold text-[#96967f]">{title}</p>
+        <p className="text-xs text-[#484640] leading-relaxed px-8">{desc}</p>
+      </div>
+      <button
+        onClick={onRequest}
+        className="mt-1 px-5 py-2.5 rounded-full text-sm font-semibold text-[#1a1916] bg-[#e6a81e] active:scale-95 transition-transform"
+      >
+        {cta}
+      </button>
+      <span className="text-[10px] text-[#3a3a32]">{credit}</span>
+    </div>
+  );
+}
+
+function AISection({
+  icon,
+  title,
+  whyLabel,
+  accentColor,
+  items,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  whyLabel: string;
+  accentColor: string;
+  items: { name: string; description: string; why: string }[];
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <div style={{ color: accentColor }}>{icon}</div>
+        <h3 className="text-[#d4d4c8] text-xs font-semibold uppercase tracking-widest">{title}</h3>
+      </div>
+      <div className="space-y-2.5">
+        {items.map((item, i) => (
+          <div
+            key={i}
+            className="rounded-xl overflow-hidden"
+            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
+          >
+            <div className="flex">
+              {/* Left accent bar */}
+              <div className="w-1 flex-shrink-0 rounded-l-xl" style={{ background: accentColor, opacity: 0.6 }} />
+
+              <div className="flex-1 p-3.5">
+                <div className="flex items-start gap-2.5 mb-2">
+                  {/* Number badge */}
+                  <div
+                    className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-[10px] font-bold mt-0.5"
+                    style={{ background: `${accentColor}18`, color: accentColor }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-[#e8e8e0] font-semibold text-sm leading-tight">{item.name}</h4>
+                    <p className="text-[#626250] text-xs mt-0.5">{item.description}</p>
+                  </div>
+                </div>
+
+                {/* Why section */}
+                <div
+                  className="rounded-lg px-3 py-2"
+                  style={{ background: "rgba(255,255,255,0.03)" }}
+                >
+                  <p className="text-[#7a7a62] text-xs leading-relaxed">
+                    <span style={{ color: accentColor, opacity: 0.7 }} className="font-semibold">{whyLabel} </span>
+                    {item.why}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
