@@ -7,7 +7,7 @@ import { FeaturedCarousel } from "./FeaturedCarousel";
 import { CategoryTabs } from "./CategoryTabs";
 import { DishCard } from "./DishCard";
 import { DishDetailSheet } from "./DishDetailSheet";
-import { LanguageProvider } from "@/contexts/LanguageContext";
+import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 
 type Props = {
   restaurant: Restaurant;
@@ -127,17 +127,7 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
         })}
 
         {/* Rodapé Tastly */}
-        <div className="mt-16 pb-2 text-center">
-          <div
-            className="inline-flex items-center gap-2 text-xs"
-            style={{ color: "#3a3830" }}
-          >
-            <span>Menu digital por</span>
-            <span className="font-semibold" style={{ color: "#626250" }}>
-              Tastly
-            </span>
-          </div>
-        </div>
+        <TastlyFooter />
       </main>
 
       <DishDetailSheet
@@ -147,5 +137,17 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
       />
     </div>
     </LanguageProvider>
+  );
+}
+
+function TastlyFooter() {
+  const { tr } = useLanguage();
+  return (
+    <div className="mt-16 pb-2 text-center">
+      <div className="inline-flex items-center gap-2 text-xs" style={{ color: "#3a3830" }}>
+        <span>{tr("footer_by")}</span>
+        <span className="font-semibold" style={{ color: "#626250" }}>Tastly</span>
+      </div>
+    </div>
   );
 }

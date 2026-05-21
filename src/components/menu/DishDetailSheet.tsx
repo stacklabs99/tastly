@@ -7,6 +7,7 @@ import type { Dish, AIRecommendation, DishType, Category } from "@/types";
 import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { NutritionBar } from "@/components/ui/NutritionBar";
 import { useLanguage } from "@/contexts/LanguageContext";
+import type { TKeys } from "@/lib/i18n";
 
 type Props = {
   dish: Dish | null;
@@ -24,31 +25,31 @@ function getCategoryType(categoryName: string): DishType {
   return "other";
 }
 
-function getFallbackForDish(dish: Dish, dishType: DishType): AIRecommendation {
+function getFallbackForDish(dish: Dish, dishType: DishType, tr: (key: keyof TKeys) => string): AIRecommendation {
   const tags = dish.tags.map((t) => t.toLowerCase());
   const name = dish.name.toLowerCase();
   const isSeafood = tags.includes("peixe") || name.includes("bacalhau") || name.includes("polvo") || name.includes("robalo") || name.includes("lingueirão");
   const isMeat = tags.includes("carne") || name.includes("porco") || name.includes("borrego");
 
   const winesSeafood = [
-    { name: "Esporão Reserva Branco", description: "Alentejo, 2022", why: "A acidez fresca potencia a delicadeza do marisco" },
-    { name: "Niepoort Nat'Cool Rosé", description: "Douro, 2023", why: "A frescura do rosé combina sem sobrepor os sabores do mar" },
+    { name: "Esporão Reserva Branco", description: "Alentejo, 2022", why: tr("fallback_w_sf_1") },
+    { name: "Niepoort Nat'Cool Rosé", description: "Douro, 2023", why: tr("fallback_w_sf_2") },
   ];
   const winesMeat = [
-    { name: "Quinta do Crasto Reserva", description: "Douro, 2021", why: "Taninos maduros e fruta escura — parceiros clássicos de carnes intensas" },
-    { name: "Herdade do Esporão Tinto", description: "Alentejo, 2020", why: "Estrutura alentejana que aguenta a gordura e o sabor da carne" },
+    { name: "Quinta do Crasto Reserva", description: "Douro, 2021", why: tr("fallback_w_mt_1") },
+    { name: "Herdade do Esporão Tinto", description: "Alentejo, 2020", why: tr("fallback_w_mt_2") },
   ];
   const winesDefault = [
-    { name: "Quinta do Crasto Reserva", description: "Douro, 2021", why: "Estrutura e elegância que complementam os sabores do prato" },
-    { name: "Esporão Reserva Branco", description: "Alentejo, 2022", why: "Frescura e acidez para equilibrar a intensidade do prato" },
+    { name: "Quinta do Crasto Reserva", description: "Douro, 2021", why: tr("fallback_w_df_1") },
+    { name: "Esporão Reserva Branco", description: "Alentejo, 2022", why: tr("fallback_w_df_2") },
   ];
 
-  const starterDefault = [{ name: "Polvo à Lagareiro", description: "Com batata assada e azeite", why: "Entrada elegante que prepara o palato para sabores intensos" }];
+  const starterDefault = [{ name: "Polvo à Lagareiro", description: "Com batata assada e azeite", why: tr("fallback_s_why") }];
   const mainDefault = [
-    { name: "Bacalhau à Brás", description: "Com batata palha e ovos", why: "Prato clássico com intensidade equilibrada" },
-    { name: "Robalo Grelhado", description: "Com legumes da época", why: "Opção mais leve que complementa bem" },
+    { name: "Bacalhau à Brás", description: "Com batata palha e ovos", why: tr("fallback_m_1_why") },
+    { name: "Robalo Grelhado", description: "Com legumes da época", why: tr("fallback_m_2_why") },
   ];
-  const dessertDefault = [{ name: "Tarte de Limão Merengada", description: "Com merengue tostado", why: "A acidez do limão fecha a refeição com elegância" }];
+  const dessertDefault = [{ name: "Tarte de Limão Merengada", description: "Com merengue tostado", why: tr("fallback_d_why") }];
 
   if (dishType === "wine" || dishType === "beverage") {
     return {
@@ -56,7 +57,7 @@ function getFallbackForDish(dish: Dish, dishType: DishType): AIRecommendation {
       starters: starterDefault,
       mains: mainDefault,
       desserts: dessertDefault,
-      reasoning: "Este vinho abre possibilidades — aqui estão os pratos que melhor o acompanham.",
+      reasoning: tr("fallback_r_wine"),
     };
   }
 
@@ -66,17 +67,17 @@ function getFallbackForDish(dish: Dish, dishType: DishType): AIRecommendation {
       starters: [],
       mains: mainDefault,
       desserts: dessertDefault,
-      reasoning: "Depois desta entrada, eis o que melhor completa a refeição.",
+      reasoning: tr("fallback_r_starter"),
     };
   }
 
   if (dishType === "dessert") {
     return {
-      wines: [{ name: "Niepoort 10 Anos Tawny", description: "Porto", why: "A doçura oxidativa amplifica as notas caramelizadas da sobremesa" }],
+      wines: [{ name: "Niepoort 10 Anos Tawny", description: "Porto", why: tr("fallback_wd_why") }],
       starters: starterDefault,
       mains: mainDefault,
       desserts: [],
-      reasoning: "Para esta sobremesa, um Porto Tawny é a escolha clássica.",
+      reasoning: tr("fallback_r_dessert"),
     };
   }
 
@@ -86,11 +87,7 @@ function getFallbackForDish(dish: Dish, dishType: DishType): AIRecommendation {
     starters: starterDefault,
     mains: [],
     desserts: dessertDefault,
-    reasoning: isSeafood
-      ? "Pratos de mar pedem vinhos brancos com boa acidez — Douro e Alentejo lideram."
-      : isMeat
-      ? "Carnes intensas exigem tintos com estrutura — Douro e Alentejo são as escolhas certas."
-      : "Sugestões baseadas no perfil aromático e intensidade do prato.",
+    reasoning: isSeafood ? tr("fallback_r_seafood") : isMeat ? tr("fallback_r_meat") : tr("fallback_r_default"),
   };
 }
 
@@ -157,7 +154,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
         reasoning: data.reasoning ?? "",
       });
     } catch {
-      setAiRec(getFallbackForDish(dish, dishType));
+      setAiRec(getFallbackForDish(dish, dishType, tr));
     } finally {
       setLoadingAI(false);
     }
@@ -303,8 +300,8 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
                   <Sparkles className="w-5 h-5" style={{ color: "#7eb8a4" }} />
                 </div>
                 <div className="text-left flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-[#e8e8e0]">Sugestão da Casa</p>
-                  <p className="text-xs mt-0.5 text-[#626250]">Selecionado pelo chef</p>
+                  <p className="font-semibold text-sm text-[#e8e8e0]">{tr("ai_cta_idle")}</p>
+                  <p className="text-xs mt-0.5 text-[#626250]">{tr("manual_sub")}</p>
                 </div>
                 <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${activeTab === "ai" ? "rotate-180" : ""}`} style={{ color: "rgba(126,184,164,0.6)" }} />
               </button>
@@ -433,7 +430,10 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
               return (
                 <div className="pb-10 animate-fade-in">
                   {loadingAI ? (
-                    <AILoadingSkeleton analyzing={tr("ai_analyzing")} />
+                    <AILoadingSkeleton
+                      analyzing={tr("ai_analyzing")}
+                      labels={[tr("ai_wines"), tr("ai_starters"), tr("ai_desserts")]}
+                    />
                   ) : activeRec ? (
                     <div className="space-y-6">
                       {/* Header card */}
@@ -447,11 +447,11 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
                         <div className="flex items-center gap-2 mb-2">
                           <Sparkles className="w-3.5 h-3.5" style={{ color: accentColor }} />
                           <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: `${accentColor}b3` }}>
-                            {isManual ? "Sugestão da Casa" : tr("ai_sommelier")}
+                            {isManual ? tr("ai_cta_idle") : tr("ai_sommelier")}
                           </span>
                         </div>
                         <p className="text-[#96967f] text-sm leading-relaxed italic">
-                          &ldquo;{activeRec.reasoning || "Sugestões de maridagem cuidadosamente selecionadas pelo chef."}&rdquo;
+                          &ldquo;{activeRec.reasoning || tr("ai_fallback_reasoning")}&rdquo;
                         </p>
                       </div>
 
@@ -462,7 +462,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
                         <AISection icon={<Salad className="w-4 h-4" />} title={tr("ai_starters")} whyLabel={tr("ai_why")} accentColor="#7eb8a4" items={activeRec.starters} />
                       )}
                       {activeRec.mains?.length > 0 && dishType !== "main" && dishType !== "other" && (
-                        <AISection icon={<UtensilsCrossed className="w-4 h-4" />} title="Pratos a Combinar" whyLabel={tr("ai_why")} accentColor="#9b8ed6" items={activeRec.mains} />
+                        <AISection icon={<UtensilsCrossed className="w-4 h-4" />} title={tr("ai_mains")} whyLabel={tr("ai_why")} accentColor="#9b8ed6" items={activeRec.mains} />
                       )}
                       {activeRec.desserts?.length > 0 && dishType !== "dessert" && (
                         <AISection icon={<Cake className="w-4 h-4" />} title={tr("ai_desserts")} whyLabel={tr("ai_why")} accentColor="#c89b7b" items={activeRec.desserts} />
@@ -476,7 +476,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
                             className="flex items-center gap-1.5 text-[#626250] text-xs active:opacity-60 transition-opacity"
                           >
                             <Sparkles className="w-3 h-3" />
-                            Gerar sugestão automática
+                            {tr("ai_generate_auto")}
                           </button>
                         ) : (
                           <button
@@ -511,7 +511,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
   );
 }
 
-function AILoadingSkeleton({ analyzing }: { analyzing: string }) {
+function AILoadingSkeleton({ analyzing, labels }: { analyzing: string; labels: [string, string, string] }) {
   return (
     <div className="space-y-5">
       <div
@@ -523,7 +523,7 @@ function AILoadingSkeleton({ analyzing }: { analyzing: string }) {
         <div className="skeleton h-3 w-4/5 rounded" />
       </div>
 
-      {(["Vinhos Sugeridos", "Entradas a Combinar", "Sobremesas Ideais"] as const).map((label, i) => (
+      {labels.map((label, i) => (
         <div key={label} style={{ animationDelay: `${i * 0.1}s` }}>
           <div className="flex items-center gap-2 mb-3">
             <div className="skeleton w-4 h-4 rounded" />
