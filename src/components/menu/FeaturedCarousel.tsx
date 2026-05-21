@@ -26,7 +26,7 @@ export function FeaturedCarousel({ dishes, onSelect }: Props) {
       <div className="px-5 mb-3 flex items-center gap-2.5">
         <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.06)" }} />
         <span className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: "#626250" }}>
-          {tr("featured")}
+          {tr("chefs_pick")}
         </span>
         <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.06)" }} />
       </div>

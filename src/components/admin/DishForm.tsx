@@ -150,12 +150,22 @@ export function DishForm({ initial, categories, dishes = [], slug, onSave, onDel
   const [pairings, setPairings] = useState<ManualPairings>(
     initial?.manual_pairings ?? { wines: [], starters: [], mains: [], desserts: [] }
   );
+  const [translationLang, setTranslationLang] = useState<"en" | "es" | "fr">("en");
+  const [translations, setTranslations] = useState<Record<string, { name?: string; description?: string }>>(
+    initial?.translations ?? {}
+  );
 
   // keep imgUrl in sync when initial changes
   useEffect(() => { setImgUrl(initial?.image_url ?? ""); }, [initial]);
 
   const set = <K extends keyof DishFormData>(key: K, val: DishFormData[K]) =>
     setForm((f) => ({ ...f, [key]: val }));
+
+  const setTranslation = (lang: string, field: "name" | "description", value: string) =>
+    setTranslations((prev) => ({
+      ...prev,
+      [lang]: { ...prev[lang], [field]: value },
+    }));
 
   const toggleAllergen = (a: Allergen) =>
     set("allergens", form.allergens.includes(a) ? form.allergens.filter((x) => x !== a) : [...form.allergens, a]);
@@ -171,7 +181,7 @@ export function DishForm({ initial, categories, dishes = [], slug, onSave, onDel
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ ...form, image_url: imgUrl || undefined, manual_pairings: pairings });
+    onSave({ ...form, image_url: imgUrl || undefined, manual_pairings: pairings, translations });
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
@@ -257,6 +267,45 @@ export function DishForm({ initial, categories, dishes = [], slug, onSave, onDel
                   onChange={(e) => set("position", parseInt(e.target.value) || 1)}
                 />
               </div>
+            </div>
+          </Card>
+
+          {/* Translations */}
+          <Card>
+            <SectionTitle>Traduções</SectionTitle>
+            <div className="flex gap-1.5 mb-4">
+              {(["en", "es", "fr"] as const).map((lang) => {
+                const labels = { en: "🇬🇧 EN", es: "🇪🇸 ES", fr: "🇫🇷 FR" };
+                const active = translationLang === lang;
+                return (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => setTranslationLang(lang)}
+                    className="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+                    style={active
+                      ? { background: "rgba(230,168,30,0.18)", color: "#e6a81e", border: "1px solid rgba(230,168,30,0.35)" }
+                      : { background: "rgba(255,255,255,0.04)", color: "#626250", border: "1px solid rgba(255,255,255,0.07)" }}
+                  >
+                    {labels[lang]}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="space-y-3">
+              <Field
+                label={`Nome (${translationLang.toUpperCase()})`}
+                value={translations[translationLang]?.name ?? ""}
+                onChange={(e) => setTranslation(translationLang, "name", e.target.value)}
+                placeholder={`Nome do prato em ${translationLang === "en" ? "inglês" : translationLang === "es" ? "espanhol" : "francês"}…`}
+              />
+              <TextArea
+                label={`Descrição (${translationLang.toUpperCase()})`}
+                rows={3}
+                value={translations[translationLang]?.description ?? ""}
+                onChange={(e) => setTranslation(translationLang, "description", e.target.value)}
+                placeholder="Descrição traduzida…"
+              />
             </div>
           </Card>
 

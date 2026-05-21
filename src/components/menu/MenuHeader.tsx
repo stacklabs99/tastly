@@ -10,8 +10,8 @@ type Props = { restaurant: Restaurant };
 export function MenuHeader({ restaurant }: Props) {
   return (
     <div className="relative">
-      {/* Cover — full bleed, cinemático */}
-      <div className="relative overflow-hidden" style={{ height: 300 }}>
+      {/* Cover */}
+      <div className="relative overflow-hidden" style={{ height: 420 }}>
         {restaurant.cover_url ? (
           <Image
             src={restaurant.cover_url}
@@ -25,29 +25,29 @@ export function MenuHeader({ restaurant }: Props) {
           <div style={{ background: "linear-gradient(135deg,#2a2018 0%,#1a1916 100%)" }} className="absolute inset-0" />
         )}
 
-        {/* Gradiente para dark bottom */}
+        {/* Gradient overlay */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(26,25,22,0.08) 0%, rgba(26,25,22,0.45) 55%, #1a1916 100%)",
+              "linear-gradient(to bottom, rgba(26,25,22,0.05) 0%, rgba(26,25,22,0.25) 40%, rgba(26,25,22,0.82) 75%, #1a1916 100%)",
           }}
         />
 
-        {/* Language switcher — top right */}
+        {/* Language switcher */}
         <div className="absolute top-4 right-4 z-10">
           <LanguageSwitcher />
         </div>
 
-        {/* Tipo de cozinha — top left */}
+        {/* Cuisine type chip */}
         {restaurant.cuisine_type && (
           <div className="absolute top-4 left-4">
             <span
               className="text-[11px] font-semibold uppercase tracking-[0.15em] px-3 py-1 rounded-full"
               style={{
-                background: "rgba(26,25,22,0.6)",
-                backdropFilter: "blur(8px)",
-                border: "1px solid rgba(230,168,30,0.35)",
+                background: "rgba(26,25,22,0.55)",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(230,168,30,0.4)",
                 color: "#e6a81e",
               }}
             >
@@ -56,12 +56,12 @@ export function MenuHeader({ restaurant }: Props) {
           </div>
         )}
 
-        {/* Nome + subtítulo sobre o cover */}
-        <div className="absolute bottom-0 left-0 right-0 px-5 pb-5 flex items-end gap-3">
+        {/* Name + description bottom */}
+        <div className="absolute bottom-0 left-0 right-0 px-5 pb-6">
           {restaurant.logo_url && (
             <div
-              className="flex-shrink-0 w-14 h-14 rounded-2xl overflow-hidden mb-0.5 ring-2"
-              style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.5)", border: "2px solid rgba(255,255,255,0.12)" }}
+              className="w-14 h-14 rounded-2xl overflow-hidden mb-3"
+              style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.6)", border: "2px solid rgba(255,255,255,0.14)" }}
             >
               <Image
                 src={restaurant.logo_url}
@@ -72,40 +72,52 @@ export function MenuHeader({ restaurant }: Props) {
               />
             </div>
           )}
-          <div className="flex-1 min-w-0">
-            <h1 className="font-serif text-white font-bold leading-none" style={{ fontSize: 32, letterSpacing: "-0.01em" }}>
-              {restaurant.name}
-            </h1>
-            {restaurant.description && (
-              <p className="text-white/60 text-sm leading-snug mt-1.5 line-clamp-2">
-                {restaurant.description}
-              </p>
-            )}
-          </div>
+          <h1
+            className="font-serif text-white font-bold leading-none"
+            style={{ fontSize: "clamp(36px, 10vw, 52px)", letterSpacing: "-0.02em", textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}
+          >
+            {restaurant.name}
+          </h1>
+          {restaurant.description && (
+            <p
+              className="mt-2 leading-snug"
+              style={{ color: "rgba(255,255,255,0.72)", fontSize: 14, maxWidth: 380, textShadow: "0 1px 8px rgba(0,0,0,0.4)" }}
+            >
+              {restaurant.description}
+            </p>
+          )}
         </div>
       </div>
 
-      {/* Barra inferior — morada + tel */}
+      {/* Info bar — clickable, prominent */}
       {(restaurant.address || restaurant.phone) && (
         <div
-          className="flex items-center gap-4 px-5 py-3"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+          className="flex flex-wrap items-center gap-x-5 gap-y-2 px-5 py-3.5"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", background: "#1a1916" }}
         >
           {restaurant.address && (
-            <div className="flex items-center gap-1.5 min-w-0">
-              <MapPin className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#7a7a62" }} />
-              <span className="text-xs truncate" style={{ color: "#7a7a62" }}>
+            <a
+              href={`https://maps.google.com/?q=${encodeURIComponent(restaurant.address)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 min-w-0 active:opacity-70 transition-opacity"
+            >
+              <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: "#e6a81e" }} />
+              <span className="text-sm truncate" style={{ color: "#b8b8a0" }}>
                 {restaurant.address}
               </span>
-            </div>
+            </a>
           )}
           {restaurant.phone && (
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <Phone className="w-3.5 h-3.5" style={{ color: "#7a7a62" }} />
-              <span className="text-xs" style={{ color: "#7a7a62" }}>
+            <a
+              href={`tel:${restaurant.phone.replace(/\s/g, "")}`}
+              className="flex items-center gap-2 flex-shrink-0 active:opacity-70 transition-opacity"
+            >
+              <Phone className="w-4 h-4" style={{ color: "#e6a81e" }} />
+              <span className="text-sm font-medium" style={{ color: "#b8b8a0" }}>
                 {restaurant.phone}
               </span>
-            </div>
+            </a>
           )}
         </div>
       )}

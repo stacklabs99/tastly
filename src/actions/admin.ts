@@ -24,6 +24,7 @@ export async function fetchRestaurantBySlug(slug: string): Promise<Restaurant | 
     phone: data.phone ?? undefined,
     cuisine_type: data.cuisine_type ?? undefined,
     primary_color: data.primary_color ?? undefined,
+    review_url: data.review_url ?? undefined,
     owner_id: data.owner_id,
     is_active: data.is_active,
     created_at: data.created_at,
@@ -39,6 +40,7 @@ export async function updateRestaurantAction(id: string, updates: Partial<Restau
     address: updates.address ?? null,
     phone: updates.phone ?? null,
     cuisine_type: updates.cuisine_type ?? null,
+    review_url: updates.review_url ?? null,
     slug: updates.slug,
   }).eq("id", id);
   if (error) throw new Error(error.message);
@@ -58,6 +60,7 @@ export async function fetchCategories(restaurantId: string): Promise<Category[]>
     description: c.description ?? undefined,
     position: c.position,
     created_at: c.created_at,
+    translations: (c.translations ?? undefined) as Category["translations"],
   }));
 }
 
@@ -112,6 +115,7 @@ export async function fetchDishes(restaurantId: string): Promise<Dish[]> {
     tags: d.tags ?? [],
     position: d.position,
     manual_pairings: (d.manual_pairings ?? undefined) as ManualPairings | undefined,
+    translations: (d.translations ?? undefined) as Dish["translations"],
     created_at: d.created_at,
     updated_at: d.updated_at,
   }));
@@ -135,6 +139,7 @@ export async function addDishAction(dish: Omit<Dish, "id" | "created_at" | "upda
     tags: dish.tags,
     position: dish.position,
     manual_pairings: dish.manual_pairings ?? null,
+    translations: dish.translations ?? null,
   }).select().single();
   if (error || !data) throw new Error(error?.message ?? "Failed to create dish");
   revalidatePath(`/menu/${slug}`);
@@ -156,6 +161,7 @@ export async function addDishAction(dish: Omit<Dish, "id" | "created_at" | "upda
     tags: data.tags ?? [],
     position: data.position,
     manual_pairings: (data.manual_pairings ?? undefined) as ManualPairings | undefined,
+    translations: (data.translations ?? undefined) as Dish["translations"],
     created_at: data.created_at,
     updated_at: data.updated_at,
   };
@@ -178,6 +184,7 @@ export async function updateDishAction(id: string, updates: Partial<Dish>, slug:
     tags: updates.tags,
     position: updates.position,
     manual_pairings: updates.manual_pairings ?? null,
+    translations: updates.translations ?? null,
     updated_at: new Date().toISOString(),
   }).eq("id", id);
   if (error) throw new Error(error.message);
