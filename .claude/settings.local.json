@@ -41,7 +41,16 @@
       "Read(//Users/013.pay.port/.config/supabase/**)",
       "Bash(xargs -I{} npx tsc --noEmit {})",
       "Bash([ -f \"/Users/013.pay.port/tastly/$f\" ])",
-      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('wines:', len\\(d.get\\('wines',[]\\)\\), '| starters:', len\\(d.get\\('starters',[]\\)\\), '| reasoning:', d.get\\('reasoning',''\\)[:60] if d.get\\('reasoning'\\) else 'n/a'\\)\")"
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('wines:', len\\(d.get\\('wines',[]\\)\\), '| starters:', len\\(d.get\\('starters',[]\\)\\), '| reasoning:', d.get\\('reasoning',''\\)[:60] if d.get\\('reasoning'\\) else 'n/a'\\)\")",
+      "Bash(xargs ls -la)",
+      "Bash(python3 -c \"import sys,json; u=json.load\\(sys.stdin\\); print\\('email_confirmed_at:', u.get\\('email_confirmed_at'\\)\\); print\\('banned:', u.get\\('banned'\\)\\); print\\('email:', u.get\\('email'\\)\\)\")",
+      "Bash(npm install *)",
+      "Bash(kill 7836)",
+      "Bash(python3 *)",
+      "Bash(git add *)",
+      "Bash(git rm *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git commit *)"
     ]
   }
 }

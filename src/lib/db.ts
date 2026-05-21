@@ -35,6 +35,7 @@ export async function getCategoriesForRestaurant(restaurantId: string): Promise<
     description: c.description ?? undefined,
     position: c.position,
     created_at: c.created_at,
+    translations: (c.translations ?? undefined) as Category["translations"],
   }));
 }
 
@@ -59,6 +60,7 @@ export async function getDishesForRestaurant(restaurantId: string): Promise<Dish
     tags: d.tags ?? [],
     position: d.position,
     manual_pairings: (d.manual_pairings ?? undefined) as ManualPairings | undefined,
+    translations: (d.translations ?? undefined) as Dish["translations"],
     created_at: d.created_at,
     updated_at: d.updated_at,
   }));
