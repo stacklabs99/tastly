@@ -19,6 +19,7 @@ export async function getRestaurantBySlug(slug: string): Promise<Restaurant | nu
     phone: data.phone ?? undefined,
     cuisine_type: data.cuisine_type ?? undefined,
     primary_color: data.primary_color ?? undefined,
+    review_url: data.review_url ?? undefined,
     owner_id: data.owner_id,
     is_active: data.is_active,
     created_at: data.created_at,

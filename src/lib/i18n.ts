@@ -102,6 +102,13 @@ export type TKeys = {
   allergen_moluscos: string;
   // Misc
   ai_rec_available: string;
+  // Chef's picks carousel
+  chefs_pick: string;
+  // Review section
+  review_title: string;
+  review_sub: string;
+  review_cta: string;
+  review_scan: string;
   // Footer
   footer_by: string;
   // Landing page
@@ -122,7 +129,12 @@ const translations: Record<Locale, TKeys> = {
     featured: "Em Destaque",
     close: "Fechar",
     soldOut: "Esgotado",
-    popular: "Popular",
+    popular: "Best Seller",
+    chefs_pick: "Sugestões do Chefe",
+    review_title: "Como foi a sua experiência?",
+    review_sub: "A sua avaliação ajuda-nos a crescer e inspira outros a descobrir-nos.",
+    review_cta: "Avaliar no Google",
+    review_scan: "ou leia o QR code",
     tab_info: "Informação",
     tab_ai: "Sugestão da Casa",
     nutrition: "Informação Nutricional",
@@ -220,7 +232,12 @@ const translations: Record<Locale, TKeys> = {
     featured: "Featured",
     close: "Close",
     soldOut: "Sold out",
-    popular: "Popular",
+    popular: "Best Seller",
+    chefs_pick: "Chef's Picks",
+    review_title: "How was your experience?",
+    review_sub: "Your review helps us grow and inspires others to discover us.",
+    review_cta: "Review on Google",
+    review_scan: "or scan the QR code",
     tab_info: "Information",
     tab_ai: "House Suggestion",
     nutrition: "Nutritional Info",
@@ -318,7 +335,12 @@ const translations: Record<Locale, TKeys> = {
     featured: "Destacados",
     close: "Cerrar",
     soldOut: "Agotado",
-    popular: "Popular",
+    popular: "Best Seller",
+    chefs_pick: "Sugerencias del Chef",
+    review_title: "¿Cómo fue tu experiencia?",
+    review_sub: "Tu valoración nos ayuda a crecer e inspira a otros a descubrirnos.",
+    review_cta: "Valorar en Google",
+    review_scan: "o escanea el código QR",
     tab_info: "Información",
     tab_ai: "Sugerencia de la Casa",
     nutrition: "Información Nutricional",
@@ -416,7 +438,12 @@ const translations: Record<Locale, TKeys> = {
     featured: "En Vedette",
     close: "Fermer",
     soldOut: "Épuisé",
-    popular: "Populaire",
+    popular: "Best Seller",
+    chefs_pick: "Sélection du Chef",
+    review_title: "Comment s'est passée votre expérience ?",
+    review_sub: "Votre avis nous aide à grandir et inspire d'autres à nous découvrir.",
+    review_cta: "Évaluer sur Google",
+    review_scan: "ou scannez le QR code",
     tab_info: "Information",
     tab_ai: "Suggestion Maison",
     nutrition: "Informations Nutritionnelles",

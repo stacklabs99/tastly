@@ -67,6 +67,7 @@ export type Restaurant = {
   phone?: string;
   cuisine_type?: string;
   primary_color?: string;
+  review_url?: string;
   owner_id: string;
   is_active: boolean;
   created_at: string;
