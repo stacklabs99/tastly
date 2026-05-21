@@ -2,6 +2,8 @@
 
 import { useRef, useEffect, useState } from "react";
 import type { Category } from "@/types";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translateCategoryName } from "@/lib/i18n";
 
 type Props = {
   categories: Category[];
@@ -10,6 +12,7 @@ type Props = {
 };
 
 export function CategoryTabs({ categories, activeId, onChange }: Props) {
+  const { tr } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLButtonElement>(null);
   const [showFade, setShowFade] = useState(false);
@@ -61,13 +64,12 @@ export function CategoryTabs({ categories, activeId, onChange }: Props) {
                     : { color: "#7a7a62" }
                 }
               >
-                {cat.name}
+                {translateCategoryName(cat.name, tr)}
               </button>
             );
           })}
         </div>
 
-        {/* Indicador de scroll à direita */}
         {showFade && (
           <div
             className="absolute right-0 top-0 bottom-0 w-12 pointer-events-none"

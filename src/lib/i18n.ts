@@ -62,6 +62,29 @@ export type TKeys = {
   fallback_r_seafood: string;
   fallback_r_meat: string;
   fallback_r_default: string;
+  // Category names (common)
+  cat_starters: string;
+  cat_mains: string;
+  cat_desserts: string;
+  cat_wines: string;
+  cat_beverages: string;
+  // Dish count
+  dish_one: string;
+  dish_many: string;
+  // Dish tags (common)
+  tag_popular: string;
+  tag_sem_gluten: string;
+  tag_saudavel: string;
+  tag_sem_lactose: string;
+  tag_tradicional: string;
+  tag_tinto: string;
+  tag_branco: string;
+  tag_rose: string;
+  tag_cocktail: string;
+  tag_com_alcool: string;
+  tag_sem_alcool: string;
+  tag_cerveja: string;
+  tag_cafe: string;
   // Allergens
   allergen_gluten: string;
   allergen_crustaceos: string;
@@ -146,6 +169,26 @@ const translations: Record<Locale, TKeys> = {
     fallback_r_seafood: "Pratos de mar pedem vinhos brancos com boa acidez — Douro e Alentejo lideram.",
     fallback_r_meat: "Carnes intensas exigem tintos com estrutura — Douro e Alentejo são as escolhas certas.",
     fallback_r_default: "Sugestões baseadas no perfil aromático e intensidade do prato.",
+    cat_starters: "Entradas",
+    cat_mains: "Pratos Principais",
+    cat_desserts: "Sobremesas",
+    cat_wines: "Vinhos",
+    cat_beverages: "Bebidas",
+    dish_one: "prato",
+    dish_many: "pratos",
+    tag_popular: "popular",
+    tag_sem_gluten: "sem glúten",
+    tag_saudavel: "saudável",
+    tag_sem_lactose: "sem lactose",
+    tag_tradicional: "tradicional",
+    tag_tinto: "tinto",
+    tag_branco: "branco",
+    tag_rose: "rosé",
+    tag_cocktail: "cocktail",
+    tag_com_alcool: "com álcool",
+    tag_sem_alcool: "sem álcool",
+    tag_cerveja: "cerveja",
+    tag_cafe: "café",
     allergen_gluten: "Glúten",
     allergen_crustaceos: "Crustáceos",
     allergen_ovos: "Ovos",
@@ -224,6 +267,26 @@ const translations: Record<Locale, TKeys> = {
     fallback_r_seafood: "Seafood dishes call for whites with good acidity — Douro and Alentejo lead the way.",
     fallback_r_meat: "Intense meats require structured reds — Douro and Alentejo are the right choices.",
     fallback_r_default: "Suggestions based on the dish's aromatic profile and intensity.",
+    cat_starters: "Starters",
+    cat_mains: "Main Courses",
+    cat_desserts: "Desserts",
+    cat_wines: "Wines",
+    cat_beverages: "Beverages",
+    dish_one: "dish",
+    dish_many: "dishes",
+    tag_popular: "popular",
+    tag_sem_gluten: "gluten-free",
+    tag_saudavel: "healthy",
+    tag_sem_lactose: "lactose-free",
+    tag_tradicional: "traditional",
+    tag_tinto: "red",
+    tag_branco: "white",
+    tag_rose: "rosé",
+    tag_cocktail: "cocktail",
+    tag_com_alcool: "with alcohol",
+    tag_sem_alcool: "alcohol-free",
+    tag_cerveja: "beer",
+    tag_cafe: "coffee",
     allergen_gluten: "Gluten",
     allergen_crustaceos: "Crustaceans",
     allergen_ovos: "Eggs",
@@ -302,6 +365,26 @@ const translations: Record<Locale, TKeys> = {
     fallback_r_seafood: "Los platos de mar piden blancos con buena acidez — Douro y Alentejo lideran.",
     fallback_r_meat: "Las carnes intensas exigen tintos con estructura — Douro y Alentejo son las opciones correctas.",
     fallback_r_default: "Sugerencias basadas en el perfil aromático e intensidad del plato.",
+    cat_starters: "Entrantes",
+    cat_mains: "Platos Principales",
+    cat_desserts: "Postres",
+    cat_wines: "Vinos",
+    cat_beverages: "Bebidas",
+    dish_one: "plato",
+    dish_many: "platos",
+    tag_popular: "popular",
+    tag_sem_gluten: "sin gluten",
+    tag_saudavel: "saludable",
+    tag_sem_lactose: "sin lactosa",
+    tag_tradicional: "tradicional",
+    tag_tinto: "tinto",
+    tag_branco: "blanco",
+    tag_rose: "rosado",
+    tag_cocktail: "cóctel",
+    tag_com_alcool: "con alcohol",
+    tag_sem_alcool: "sin alcohol",
+    tag_cerveja: "cerveza",
+    tag_cafe: "café",
     allergen_gluten: "Gluten",
     allergen_crustaceos: "Crustáceos",
     allergen_ovos: "Huevos",
@@ -380,6 +463,26 @@ const translations: Record<Locale, TKeys> = {
     fallback_r_seafood: "Les plats de mer réclament des blancs avec une bonne acidité — Douro et Alentejo sont en tête.",
     fallback_r_meat: "Les viandes intenses nécessitent des rouges structurés — Douro et Alentejo sont les bons choix.",
     fallback_r_default: "Suggestions basées sur le profil aromatique et l'intensité du plat.",
+    cat_starters: "Entrées",
+    cat_mains: "Plats Principaux",
+    cat_desserts: "Desserts",
+    cat_wines: "Vins",
+    cat_beverages: "Boissons",
+    dish_one: "plat",
+    dish_many: "plats",
+    tag_popular: "populaire",
+    tag_sem_gluten: "sans gluten",
+    tag_saudavel: "sain",
+    tag_sem_lactose: "sans lactose",
+    tag_tradicional: "traditionnel",
+    tag_tinto: "rouge",
+    tag_branco: "blanc",
+    tag_rose: "rosé",
+    tag_cocktail: "cocktail",
+    tag_com_alcool: "avec alcool",
+    tag_sem_alcool: "sans alcool",
+    tag_cerveja: "bière",
+    tag_cafe: "café",
     allergen_gluten: "Gluten",
     allergen_crustaceos: "Crustacés",
     allergen_ovos: "Oeufs",
@@ -411,4 +514,42 @@ const translations: Record<Locale, TKeys> = {
 
 export function t(locale: Locale, key: keyof TKeys): string {
   return translations[locale][key];
+}
+
+export function getLocalized(
+  item: { name: string; description?: string; translations?: Record<string, { name?: string; description?: string }> },
+  locale: string,
+  field: "name" | "description"
+): string {
+  const val = item.translations?.[locale]?.[field];
+  if (val) return val;
+  return field === "name" ? item.name : (item.description ?? "");
+}
+
+export function translateTag(tag: string, tr: (key: keyof TKeys) => string): string {
+  const t = tag.toLowerCase().trim();
+  if (t === "popular") return tr("tag_popular");
+  if (t === "sem-glúten" || t === "sem glúten" || t === "sem-gluten") return tr("tag_sem_gluten");
+  if (t === "saudável" || t === "saudavel") return tr("tag_saudavel");
+  if (t === "sem-lactose" || t === "sem lactose") return tr("tag_sem_lactose");
+  if (t === "tradicional") return tr("tag_tradicional");
+  if (t === "tinto") return tr("tag_tinto");
+  if (t === "branco") return tr("tag_branco");
+  if (t === "rosé" || t === "rose") return tr("tag_rose");
+  if (t === "cocktail" || t === "cóctel") return tr("tag_cocktail");
+  if (t === "com álcool" || t === "com alcool") return tr("tag_com_alcool");
+  if (t === "sem álcool" || t === "sem alcool") return tr("tag_sem_alcool");
+  if (t === "cerveja") return tr("tag_cerveja");
+  if (t === "café" || t === "cafe") return tr("tag_cafe");
+  return tag;
+}
+
+export function translateCategoryName(name: string, tr: (key: keyof TKeys) => string): string {
+  const n = name.toLowerCase();
+  if (n.includes("entrada") || n.includes("starter") || n.includes("entrante") || n.includes("entrée")) return tr("cat_starters");
+  if (n.includes("principal") || n.includes("main") || n.includes("prato")) return tr("cat_mains");
+  if (n.includes("sobremesa") || n.includes("dessert") || n.includes("postre")) return tr("cat_desserts");
+  if (n.includes("vinho") || n.includes("wine") || n.includes("vino") || n.includes("vin")) return tr("cat_wines");
+  if (n.includes("bebida") || n.includes("drink") || n.includes("beverage") || n.includes("boisson")) return tr("cat_beverages");
+  return name;
 }

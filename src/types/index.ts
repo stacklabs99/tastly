@@ -1,3 +1,5 @@
+export type LocaleTranslation = { name?: string; description?: string };
+
 export type Category = {
   id: string;
   restaurant_id: string;
@@ -5,6 +7,7 @@ export type Category = {
   description?: string;
   position: number;
   created_at: string;
+  translations?: Record<string, LocaleTranslation>;
 };
 
 export type Allergen =
@@ -41,6 +44,7 @@ export type Dish = {
   tags: string[];
   position: number;
   manual_pairings?: ManualPairings;
+  translations?: Record<string, LocaleTranslation>;
   created_at: string;
   updated_at: string;
 };

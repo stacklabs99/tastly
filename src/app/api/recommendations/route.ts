@@ -4,77 +4,88 @@ import type { Dish, DishType } from "@/types";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-function buildPrompt(dish: Dish, dishType: DishType): string {
-  const base = `És um sommelier e chef especialista em gastronomia portuguesa e mediterrânica.
+const RESPONSE_LANG: Record<string, string> = {
+  pt: "Responde sempre em português.",
+  en: "Always respond in English.",
+  es: "Responde siempre en español.",
+  fr: "Réponds toujours en français.",
+};
 
-O cliente selecionou: "${dish.name}"
-Tipo: ${dishType}
-Descrição: ${dish.description}
+function buildPrompt(dish: Dish, dishType: DishType, locale: string): string {
+  const langInstruction = RESPONSE_LANG[locale] ?? RESPONSE_LANG.pt;
+
+  const base = `You are a sommelier and chef specialising in Portuguese and Mediterranean gastronomy.
+
+Selected item: "${dish.name}"
+Type: ${dishType}
+Description: ${dish.description}
 ${dish.tags.length > 0 ? `Tags: ${dish.tags.join(", ")}` : ""}
-${dish.allergens.length > 0 ? `Alergénios: ${dish.allergens.join(", ")}` : ""}`;
+${dish.allergens.length > 0 ? `Allergens: ${dish.allergens.join(", ")}` : ""}`;
 
   const instructions: Record<DishType, string> = {
-    wine: `Este item É um vinho. Sugere o que combina bem com este vinho:
-- 2 entradas que harmonizem (starters)
-- 2 pratos principais que combinem (mains)
-- 1 sobremesa que complete (desserts)
-Deixa wines vazio ([]).`,
+    wine: `This item IS a wine. Suggest what pairs well with it:
+- 2 starters that harmonise (starters)
+- 2 main courses that pair well (mains)
+- 1 dessert to complete (desserts)
+Leave wines empty ([]).`,
 
-    beverage: `Este item É uma bebida. Sugere o que combina com ela:
-- 2 entradas que harmonizem (starters)
-- 2 pratos principais que combinem (mains)
-- 1 sobremesa que complete (desserts)
-Deixa wines vazio ([]).`,
+    beverage: `This item IS a beverage. Suggest what pairs with it:
+- 2 starters that harmonise (starters)
+- 2 main courses that pair well (mains)
+- 1 dessert to complete (desserts)
+Leave wines empty ([]).`,
 
-    starter: `Este item É uma entrada. Sugere o que se segue:
-- 2 vinhos para acompanhar (wines)
-- 2 pratos principais que continuem a refeição (mains)
-- 1 sobremesa para terminar (desserts)
-Deixa starters vazio ([]).`,
+    starter: `This item IS a starter. Suggest what follows:
+- 2 wines to accompany (wines)
+- 2 main courses to continue the meal (mains)
+- 1 dessert to finish (desserts)
+Leave starters empty ([]).`,
 
-    dessert: `Este item É uma sobremesa. Sugere o que complementa:
-- 2 vinhos que harmonizem (wines)
-- 1 entrada para antes (starters)
-- 2 pratos principais que antecedam bem (mains)
-Deixa desserts vazio ([]).`,
+    dessert: `This item IS a dessert. Suggest what complements it:
+- 2 wines that harmonise (wines)
+- 1 starter to precede (starters)
+- 2 main courses that lead up well (mains)
+Leave desserts empty ([]).`,
 
-    main: `Este item É um prato principal. Sugere maridagem completa:
-- 2 vinhos que complementem (wines)
-- 1 entrada para antes (starters)
-- 1 sobremesa para depois (desserts)
-Deixa mains vazio ([]).`,
+    main: `This item IS a main course. Suggest a complete pairing:
+- 2 wines that complement (wines)
+- 1 starter to precede (starters)
+- 1 dessert to follow (desserts)
+Leave mains empty ([]).`,
 
-    other: `Sugere maridagem equilibrada:
-- 2 vinhos (wines)
-- 1 entrada (starters)
-- 1 prato principal (mains)
-- 1 sobremesa (desserts)`,
+    other: `Suggest a balanced pairing:
+- 2 wines (wines)
+- 1 starter (starters)
+- 1 main course (mains)
+- 1 dessert (desserts)`,
   };
 
   return `${base}
 
 ${instructions[dishType]}
 
-Responde em JSON com este formato exato (usa [] para as secções vazias conforme indicado):
+${langInstruction}
+
+Respond in JSON with this exact format (use [] for empty sections as indicated):
 {
-  "wines": [{"name": "...", "description": "Região, ano", "why": "razão em português"}],
-  "starters": [{"name": "...", "description": "descrição curta", "why": "razão em português"}],
-  "mains": [{"name": "...", "description": "descrição curta", "why": "razão em português"}],
-  "desserts": [{"name": "...", "description": "descrição curta", "why": "razão em português"}],
-  "reasoning": "lógica de maridagem em 1-2 frases"
+  "wines": [{"name": "...", "description": "Region, year", "why": "pairing reason"}],
+  "starters": [{"name": "...", "description": "short description", "why": "pairing reason"}],
+  "mains": [{"name": "...", "description": "short description", "why": "pairing reason"}],
+  "desserts": [{"name": "...", "description": "short description", "why": "pairing reason"}],
+  "reasoning": "pairing logic in 1-2 sentences"
 }
 
-Sê específico, elegante e conciso. Usa nomes reais de produtos portugueses.`;
+Be specific, elegant and concise. Use real Portuguese product names.`;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { dish, dishType = "other" }: { dish: Dish; dishType: DishType } = await request.json();
+    const { dish, dishType = "other", locale = "pt" }: { dish: Dish; dishType: DishType; locale: string } = await request.json();
 
     const message = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 900,
-      messages: [{ role: "user", content: buildPrompt(dish, dishType) }],
+      messages: [{ role: "user", content: buildPrompt(dish, dishType, locale) }],
     });
 
     const content = message.content[0];

@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { Dish } from "@/types";
 import { useInView } from "@/hooks/useInView";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getLocalized } from "@/lib/i18n";
 
 type Props = {
   dish: Dish;
@@ -15,8 +16,10 @@ type Props = {
 export function DishCard({ dish, onClick, delay = 0 }: Props) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [ref, inView] = useInView(0.06);
-  const { tr } = useLanguage();
+  const { tr, locale } = useLanguage();
   const showPopular = dish.tags.includes("popular");
+  const dishName = getLocalized(dish, locale, "name");
+  const dishDescription = getLocalized(dish, locale, "description");
 
   return (
     <button
@@ -39,7 +42,7 @@ export function DishCard({ dish, onClick, delay = 0 }: Props) {
         {dish.image_url ? (
           <Image
             src={dish.image_url}
-            alt={dish.name}
+            alt={dishName}
             fill
             className="object-cover transition-all duration-700 group-hover:scale-[1.06]"
             style={{ opacity: imgLoaded ? 1 : 0 }}
@@ -83,13 +86,13 @@ export function DishCard({ dish, onClick, delay = 0 }: Props) {
           className="font-serif font-semibold leading-tight line-clamp-2 mb-1"
           style={{ color: "#f0efe9", fontSize: 13 }}
         >
-          {dish.name}
+          {dishName}
         </h3>
         <p
           className="leading-relaxed line-clamp-2 mb-3"
           style={{ color: "#6e6c5a", fontSize: 11 }}
         >
-          {dish.description}
+          {dishDescription}
         </p>
         <div className="flex items-center justify-between">
           <span className="font-bold" style={{ color: "#e6a81e", fontSize: 14 }}>

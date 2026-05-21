@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import type { Dish } from "@/types";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { translateTag, getLocalized } from "@/lib/i18n";
 
 type Props = {
   dishes: Dish[];
@@ -72,6 +73,9 @@ export function FeaturedCarousel({ dishes, onSelect }: Props) {
 
 function FeaturedCard({ dish, onSelect }: { dish: Dish; onSelect: (d: Dish) => void }) {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const { tr, locale } = useLanguage();
+  const dishName = getLocalized(dish, locale, "name");
+  const dishDescription = getLocalized(dish, locale, "description");
 
   return (
     <button
@@ -89,7 +93,7 @@ function FeaturedCard({ dish, onSelect }: { dish: Dish; onSelect: (d: Dish) => v
       {dish.image_url && (
         <Image
           src={dish.image_url}
-          alt={dish.name}
+          alt={dishName}
           fill
           className="object-cover transition-opacity duration-600"
           style={{ opacity: imgLoaded ? 1 : 0 }}
@@ -129,7 +133,7 @@ function FeaturedCard({ dish, onSelect }: { dish: Dish; onSelect: (d: Dish) => v
               color: "#b8b8a8",
             }}
           >
-            {dish.tags[0]}
+            {translateTag(dish.tags[0], tr)}
           </span>
         </div>
       )}
@@ -137,10 +141,10 @@ function FeaturedCard({ dish, onSelect }: { dish: Dish; onSelect: (d: Dish) => v
       {/* Nome + descrição */}
       <div className="absolute bottom-0 left-0 right-0 p-4">
         <h3 className="font-serif text-white font-semibold leading-tight" style={{ fontSize: 18 }}>
-          {dish.name}
+          {dishName}
         </h3>
         <p className="mt-1 line-clamp-2 leading-snug" style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>
-          {dish.description}
+          {dishDescription}
         </p>
       </div>
     </button>

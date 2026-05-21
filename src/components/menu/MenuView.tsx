@@ -8,6 +8,7 @@ import { CategoryTabs } from "./CategoryTabs";
 import { DishCard } from "./DishCard";
 import { DishDetailSheet } from "./DishDetailSheet";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { getLocalized } from "@/lib/i18n";
 
 type Props = {
   restaurant: Restaurant;
@@ -90,24 +91,12 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
             >
               {/* Cabeçalho da secção */}
               <div className="mb-4 flex items-baseline justify-between">
-                <div>
-                  <h2
-                    className="font-serif font-semibold"
-                    style={{ color: "#f5f5f0", fontSize: 20 }}
-                  >
-                    {cat.name}
-                  </h2>
-                  {cat.description && (
-                    <p className="text-xs mt-0.5" style={{ color: "#626250" }}>
-                      {cat.description}
-                    </p>
-                  )}
-                </div>
+                <CategoryHeader cat={cat} />
                 <span
                   className="text-xs font-medium"
                   style={{ color: "#504e41" }}
                 >
-                  {catDishes.length} {catDishes.length === 1 ? "prato" : "pratos"}
+                  <DishCount n={catDishes.length} />
                 </span>
               </div>
 
@@ -138,6 +127,29 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
     </div>
     </LanguageProvider>
   );
+}
+
+function CategoryHeader({ cat }: { cat: import("@/types").Category }) {
+  const { locale } = useLanguage();
+  const name = getLocalized(cat, locale, "name");
+  const description = getLocalized(cat, locale, "description");
+  return (
+    <div>
+      <h2 className="font-serif font-semibold" style={{ color: "#f5f5f0", fontSize: 20 }}>
+        {name}
+      </h2>
+      {description && (
+        <p className="text-xs mt-0.5" style={{ color: "#626250" }}>
+          {description}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function DishCount({ n }: { n: number }) {
+  const { tr } = useLanguage();
+  return <>{n} {n === 1 ? tr("dish_one") : tr("dish_many")}</>;
 }
 
 function TastlyFooter() {

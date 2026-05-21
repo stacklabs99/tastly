@@ -8,6 +8,7 @@ import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { NutritionBar } from "@/components/ui/NutritionBar";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { TKeys } from "@/lib/i18n";
+import { translateTag, getLocalized } from "@/lib/i18n";
 
 type Props = {
   dish: Dish | null;
@@ -96,7 +97,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
   const [aiRec, setAiRec] = useState<AIRecommendation | null>(null);
   const [loadingAI, setLoadingAI] = useState(false);
   const [activeTab, setActiveTab] = useState<"info" | "ai">("info");
-  const { tr } = useLanguage();
+  const { tr, locale } = useLanguage();
 
   const dishType: DishType = dish
     ? getCategoryType(categories.find((c) => c.id === dish.category_id)?.name ?? "")
@@ -142,7 +143,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
       const res = await fetch("/api/recommendations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dish, dishType }),
+        body: JSON.stringify({ dish, dishType, locale }),
       });
       const data = await res.json();
       if (data.error) throw new Error("No data");
@@ -206,6 +207,8 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
 
   if (!dish) return null;
 
+  const dishName = getLocalized(dish, locale, "name");
+  const dishDescription = getLocalized(dish, locale, "description");
   const hasNutrition = dish.calories != null || dish.proteins != null || dish.carbs != null || dish.fat != null;
 
   return (
@@ -240,7 +243,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
             {dish.image_url ? (
               <Image
                 src={dish.image_url}
-                alt={dish.name}
+                alt={dishName}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 600px"
@@ -262,13 +265,13 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
           <div className="px-4 mb-4">
             <div className="flex items-start justify-between gap-3">
               <h2 className="font-serif text-[#f5f5f0] text-2xl font-semibold leading-tight flex-1">
-                {dish.name}
+                {dishName}
               </h2>
               <span className="text-[#e6a81e] font-bold text-xl whitespace-nowrap">
                 {dish.price.toFixed(2)} €
               </span>
             </div>
-            <p className="text-[#96967f] text-sm leading-relaxed mt-2">{dish.description}</p>
+            <p className="text-[#96967f] text-sm leading-relaxed mt-2">{dishDescription}</p>
 
             {dish.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-3">
@@ -277,7 +280,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
                     key={tag}
                     className="text-xs px-2.5 py-0.5 rounded-full bg-[#e6a81e]/10 text-[#e6a81e] border border-[#e6a81e]/20"
                   >
-                    {tag}
+                    {translateTag(tag, tr)}
                   </span>
                 ))}
               </div>
