@@ -9,6 +9,7 @@ import {
   UtensilsCrossed,
   Layers,
   Store,
+  QrCode,
   ExternalLink,
   ChevronLeft,
   ChevronRight,
@@ -33,6 +34,7 @@ export function AdminSidebar({ slug, userEmail }: Props) {
     { href: `${base}/pratos`, label: "Pratos", icon: UtensilsCrossed },
     { href: `${base}/categorias`, label: "Categorias", icon: Layers },
     { href: `${base}/restaurante`, label: "Restaurante", icon: Store },
+    { href: `${base}/qrcode`, label: "QR Code", icon: QrCode },
   ];
 
   const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => (

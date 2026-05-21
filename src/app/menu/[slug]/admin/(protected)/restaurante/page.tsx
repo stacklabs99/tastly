@@ -61,6 +61,20 @@ export default function RestaurantePage() {
           <div><Label>Telefone</Label>
             <input value={form.phone ?? ""} onChange={(e) => set("phone", e.target.value)} className={inputCls} style={inputStyle} placeholder="+351 21 000 0000" />
           </div>
+          <div>
+            <Label>Link Google Reviews</Label>
+            <input
+              type="url"
+              value={form.review_url ?? ""}
+              onChange={(e) => set("review_url", e.target.value)}
+              className={inputCls}
+              style={inputStyle}
+              placeholder="https://g.page/r/..."
+            />
+            <p className="text-[11px] mt-1" style={{ color: "#3a3830" }}>
+              Aparece no final do menu como botão e QR code de avaliação.
+            </p>
+          </div>
         </div>
 
         <div className={sectionCls} style={sectionStyle}>
