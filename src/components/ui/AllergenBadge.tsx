@@ -1,6 +1,8 @@
 "use client";
 
-import { ALLERGEN_INFO, type Allergen } from "@/types";
+import { type Allergen, ALLERGEN_INFO } from "@/types";
+import { useLanguage } from "@/contexts/LanguageContext";
+import type { TKeys } from "@/lib/i18n";
 
 type Props = {
   allergen: Allergen;
@@ -8,7 +10,10 @@ type Props = {
 };
 
 export function AllergenBadge({ allergen, size = "sm" }: Props) {
+  const { tr } = useLanguage();
   const info = ALLERGEN_INFO[allergen];
+  const label = tr(`allergen_${allergen}` as keyof TKeys);
+
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 text-dark-300 ${
@@ -16,7 +21,7 @@ export function AllergenBadge({ allergen, size = "sm" }: Props) {
       }`}
     >
       <span>{info.icon}</span>
-      <span>{info.label}</span>
+      <span>{label}</span>
     </span>
   );
 }

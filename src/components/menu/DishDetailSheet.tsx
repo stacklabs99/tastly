@@ -360,7 +360,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
                   <span
                     className="ml-1 w-1.5 h-1.5 rounded-full"
                     style={{ background: manualRec ? "#7eb8a4" : "#e6a81e" }}
-                    title="Recomendações disponíveis"
+                    title={tr("ai_rec_available")}
                   />
                 )}
                 {activeTab === "ai" && (

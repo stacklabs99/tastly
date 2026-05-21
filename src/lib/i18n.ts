@@ -62,6 +62,23 @@ export type TKeys = {
   fallback_r_seafood: string;
   fallback_r_meat: string;
   fallback_r_default: string;
+  // Allergens
+  allergen_gluten: string;
+  allergen_crustaceos: string;
+  allergen_ovos: string;
+  allergen_peixe: string;
+  allergen_amendoins: string;
+  allergen_soja: string;
+  allergen_leite: string;
+  allergen_frutos_casca: string;
+  allergen_aipo: string;
+  allergen_mostarda: string;
+  allergen_sesamo: string;
+  allergen_sulfitos: string;
+  allergen_tremocos: string;
+  allergen_moluscos: string;
+  // Misc
+  ai_rec_available: string;
   // Footer
   footer_by: string;
   // Landing page
@@ -129,6 +146,21 @@ const translations: Record<Locale, TKeys> = {
     fallback_r_seafood: "Pratos de mar pedem vinhos brancos com boa acidez — Douro e Alentejo lideram.",
     fallback_r_meat: "Carnes intensas exigem tintos com estrutura — Douro e Alentejo são as escolhas certas.",
     fallback_r_default: "Sugestões baseadas no perfil aromático e intensidade do prato.",
+    allergen_gluten: "Glúten",
+    allergen_crustaceos: "Crustáceos",
+    allergen_ovos: "Ovos",
+    allergen_peixe: "Peixe",
+    allergen_amendoins: "Amendoins",
+    allergen_soja: "Soja",
+    allergen_leite: "Leite",
+    allergen_frutos_casca: "Frutos de Casca",
+    allergen_aipo: "Aipo",
+    allergen_mostarda: "Mostarda",
+    allergen_sesamo: "Sésamo",
+    allergen_sulfitos: "Sulfitos",
+    allergen_tremocos: "Tremoços",
+    allergen_moluscos: "Moluscos",
+    ai_rec_available: "Recomendações disponíveis",
     footer_by: "Menu digital por",
     home_badge: "Menu digital com IA",
     home_tagline: "O menu digital que aumenta o ticket médio do seu restaurante com recomendações inteligentes de vinho, entradas e sobremesas.",
@@ -192,6 +224,21 @@ const translations: Record<Locale, TKeys> = {
     fallback_r_seafood: "Seafood dishes call for whites with good acidity — Douro and Alentejo lead the way.",
     fallback_r_meat: "Intense meats require structured reds — Douro and Alentejo are the right choices.",
     fallback_r_default: "Suggestions based on the dish's aromatic profile and intensity.",
+    allergen_gluten: "Gluten",
+    allergen_crustaceos: "Crustaceans",
+    allergen_ovos: "Eggs",
+    allergen_peixe: "Fish",
+    allergen_amendoins: "Peanuts",
+    allergen_soja: "Soya",
+    allergen_leite: "Milk",
+    allergen_frutos_casca: "Tree Nuts",
+    allergen_aipo: "Celery",
+    allergen_mostarda: "Mustard",
+    allergen_sesamo: "Sesame",
+    allergen_sulfitos: "Sulphites",
+    allergen_tremocos: "Lupin",
+    allergen_moluscos: "Molluscs",
+    ai_rec_available: "Recommendations available",
     footer_by: "Digital menu by",
     home_badge: "Digital menu with AI",
     home_tagline: "The digital menu that increases your restaurant's average ticket with intelligent wine, starter and dessert recommendations.",
@@ -255,6 +302,21 @@ const translations: Record<Locale, TKeys> = {
     fallback_r_seafood: "Los platos de mar piden blancos con buena acidez — Douro y Alentejo lideran.",
     fallback_r_meat: "Las carnes intensas exigen tintos con estructura — Douro y Alentejo son las opciones correctas.",
     fallback_r_default: "Sugerencias basadas en el perfil aromático e intensidad del plato.",
+    allergen_gluten: "Gluten",
+    allergen_crustaceos: "Crustáceos",
+    allergen_ovos: "Huevos",
+    allergen_peixe: "Pescado",
+    allergen_amendoins: "Cacahuetes",
+    allergen_soja: "Soja",
+    allergen_leite: "Leche",
+    allergen_frutos_casca: "Frutos de Cáscara",
+    allergen_aipo: "Apio",
+    allergen_mostarda: "Mostaza",
+    allergen_sesamo: "Sésamo",
+    allergen_sulfitos: "Sulfitos",
+    allergen_tremocos: "Altramuces",
+    allergen_moluscos: "Moluscos",
+    ai_rec_available: "Recomendaciones disponibles",
     footer_by: "Menú digital por",
     home_badge: "Menú digital con IA",
     home_tagline: "El menú digital que aumenta el ticket medio de tu restaurante con recomendaciones inteligentes de vino, entrantes y postres.",
@@ -318,6 +380,21 @@ const translations: Record<Locale, TKeys> = {
     fallback_r_seafood: "Les plats de mer réclament des blancs avec une bonne acidité — Douro et Alentejo sont en tête.",
     fallback_r_meat: "Les viandes intenses nécessitent des rouges structurés — Douro et Alentejo sont les bons choix.",
     fallback_r_default: "Suggestions basées sur le profil aromatique et l'intensité du plat.",
+    allergen_gluten: "Gluten",
+    allergen_crustaceos: "Crustacés",
+    allergen_ovos: "Oeufs",
+    allergen_peixe: "Poisson",
+    allergen_amendoins: "Arachides",
+    allergen_soja: "Soja",
+    allergen_leite: "Lait",
+    allergen_frutos_casca: "Fruits à Coque",
+    allergen_aipo: "Céleri",
+    allergen_mostarda: "Moutarde",
+    allergen_sesamo: "Sésame",
+    allergen_sulfitos: "Sulfites",
+    allergen_tremocos: "Lupin",
+    allergen_moluscos: "Mollusques",
+    ai_rec_available: "Recommandations disponibles",
     footer_by: "Menu numérique par",
     home_badge: "Menu numérique avec IA",
     home_tagline: "Le menu numérique qui augmente le ticket moyen de votre restaurant avec des recommandations intelligentes de vin, entrées et desserts.",
