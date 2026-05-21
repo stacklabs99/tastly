@@ -11,7 +11,7 @@ export function MenuHeader({ restaurant }: Props) {
   return (
     <div className="relative">
       {/* Cover */}
-      <div className="relative overflow-hidden" style={{ height: 420 }}>
+      <div className="relative overflow-hidden" style={{ height: "clamp(220px, 55vw, 340px)" }}>
         {restaurant.cover_url ? (
           <Image
             src={restaurant.cover_url}

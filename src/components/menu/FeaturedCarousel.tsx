@@ -73,6 +73,7 @@ export function FeaturedCarousel({ dishes, onSelect }: Props) {
 
 function FeaturedCard({ dish, onSelect }: { dish: Dish; onSelect: (d: Dish) => void }) {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const { tr, locale } = useLanguage();
   const dishName = getLocalized(dish, locale, "name");
   const dishDescription = getLocalized(dish, locale, "description");
@@ -90,7 +91,7 @@ function FeaturedCard({ dish, onSelect }: { dish: Dish; onSelect: (d: Dish) => v
     >
       {!imgLoaded && <div className="absolute inset-0 skeleton" />}
 
-      {dish.image_url && (
+      {dish.image_url && !imgError && (
         <Image
           src={dish.image_url}
           alt={dishName}
@@ -99,6 +100,7 @@ function FeaturedCard({ dish, onSelect }: { dish: Dish; onSelect: (d: Dish) => v
           style={{ opacity: imgLoaded ? 1 : 0 }}
           sizes="320px"
           onLoad={() => setImgLoaded(true)}
+          onError={() => { setImgError(true); setImgLoaded(true); }}
         />
       )}
 

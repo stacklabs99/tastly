@@ -97,6 +97,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
   const [aiRec, setAiRec] = useState<AIRecommendation | null>(null);
   const [loadingAI, setLoadingAI] = useState(false);
   const [activeTab, setActiveTab] = useState<"info" | "ai">("info");
+  const [imgError, setImgError] = useState(false);
   const { tr, locale } = useLanguage();
 
   const dishType: DishType = dish
@@ -120,6 +121,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
       setAiRec(null);
       setLoadingAI(false);
       setActiveTab("info");
+      setImgError(false);
       document.body.style.overflow = "hidden";
     } else {
       setIsVisible(false);
@@ -239,8 +241,8 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
 
         <div className="overflow-y-auto flex-1 overscroll-contain">
           {/* Hero image */}
-          <div className="relative mx-4 rounded-2xl overflow-hidden mb-4 bg-[#2a2926]" style={{ aspectRatio: "16/9" }}>
-            {dish.image_url ? (
+          <div className="relative mx-4 rounded-2xl overflow-hidden mb-4 bg-[#2a2926] h-44 sm:h-52">
+            {dish.image_url && !imgError ? (
               <Image
                 src={dish.image_url}
                 alt={dishName}
@@ -248,6 +250,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 600px"
                 priority
+                onError={() => setImgError(true)}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-6xl opacity-20">🍽️</div>
