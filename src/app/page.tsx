@@ -80,7 +80,7 @@ export default function Home() {
                 style={{ background: "rgba(230,168,30,0.1)", border: "1px solid rgba(230,168,30,0.2)", color: "#e6a81e" }}
               >
                 <Sparkles className="w-3 h-3" />
-                Menu digital com IA · Sem app · Grátis para começar
+                Menu digital com IA · Sem app · A partir de 39€/mês
               </div>
 
               <h1
@@ -134,7 +134,7 @@ export default function Home() {
               </div>
 
               <p className="mt-4 text-xs" style={{ color: "#3a3830" }}>
-                Sem cartão de crédito · Configurado em 5 minutos · Cancela quando quiser
+                Configurado em 5 minutos · Sem contrato · Cancela quando quiser
               </p>
             </div>
 
@@ -146,70 +146,59 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── LOGO BAR ── */}
+      {/* ── STATS STRIP ── */}
       <section className="py-10 px-5" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-6" style={{ color: "#3a3830" }}>
-            Restaurantes que já usam o Tastly
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-5 md:gap-8">
-            {["Casa do Mar", "Taberna do Porto", "Mar & Terra", "Salva Lisboa", "Bairro Alto Café"].map((name) => (
-              <span key={name} className="text-sm font-semibold" style={{ color: "#3a3830" }}>{name}</span>
-            ))}
-          </div>
+        <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+          {[
+            { value: "4", label: "Idiomas", sub: "PT · EN · ES · FR" },
+            { value: "IA", label: "Maridagem", sub: "Vinho · Entrada · Sobremesa" },
+            { value: "QR", label: "Sem app", sub: "Abre direto no telemóvel" },
+            { value: "39€", label: "Para começar", sub: "Plano Starter / mês" },
+          ].map((s) => (
+            <div key={s.label}>
+              <div className="font-serif text-2xl font-bold mb-0.5" style={{ color: "#e6a81e" }}>{s.value}</div>
+              <div className="text-sm font-semibold" style={{ color: "#d4d4c8" }}>{s.label}</div>
+              <div className="text-[11px] mt-0.5" style={{ color: "#484640" }}>{s.sub}</div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ── TESTEMUNHOS ── */}
+      {/* ── PORQUE O TASTLY ── */}
       <section className="py-20 px-5">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <div className="flex justify-center gap-0.5 mb-3">
-              {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" style={{ color: "#e6a81e" }} />)}
-            </div>
             <h2 className="font-serif text-2xl md:text-3xl font-bold" style={{ color: "#f5f5f0" }}>
-              O que dizem os restaurantes
+              Porque é que os restaurantes escolhem o Tastly?
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               {
-                quote: "As sobremesas começaram a vender muito mais. Os clientes veem a sugestão do Tastly e pedem. Simples assim.",
-                name: "João Monteiro",
-                role: "Restaurante Salva, Lisboa",
-                stars: 5,
+                icon: "📈",
+                title: "Ticket médio mais alto",
+                desc: "A IA sugere vinho, entrada e sobremesa para cada prato. O cliente pede mais sem que ninguém precise de perguntar.",
               },
               {
-                quote: "Recebemos muitos turistas. Com o menu em 4 idiomas automáticos nunca mais houve confusão nas mesas. Vale ouro.",
-                name: "Ana Rodrigues",
-                role: "Taberna do Porto, Porto",
-                stars: 5,
+                icon: "🌍",
+                title: "Turistas sem barreiras",
+                desc: "O menu muda de idioma com um toque. PT, EN, ES e FR disponíveis de imediato, sem tradução manual.",
               },
               {
-                quote: "Montei tudo numa tarde. As fotos ficaram com um aspeto premium que os menus em papel nunca conseguiriam.",
-                name: "Miguel Ferreira",
-                role: "Mar & Terra, Cascais",
-                stars: 5,
+                icon: "⚡",
+                title: "Atualizado em segundos",
+                desc: "Mudou um preço? Esgotou um prato? Altera no admin e o menu atualiza instantaneamente para todos os clientes.",
               },
-            ].map((t) => (
+            ].map((item) => (
               <div
-                key={t.name}
-                className="rounded-2xl p-6 flex flex-col gap-4"
+                key={item.title}
+                className="rounded-2xl p-6 flex flex-col gap-3"
                 style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
               >
-                <div className="flex gap-0.5">
-                  {[...Array(t.stars)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-current" style={{ color: "#e6a81e" }} />
-                  ))}
-                </div>
-                <p className="text-sm leading-relaxed flex-1" style={{ color: "#96967f" }}>
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: "#d4d4c8" }}>{t.name}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "#484640" }}>{t.role}</p>
-                </div>
+                <span style={{ fontSize: 28 }}>{item.icon}</span>
+                <h3 className="font-serif font-semibold" style={{ color: "#f0efe9", fontSize: 16 }}>{item.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: "#626250" }}>{item.desc}</p>
               </div>
             ))}
           </div>
@@ -349,34 +338,36 @@ export default function Home() {
               Simples. Transparente. Sem surpresas.
             </h2>
             <p className="mt-3 text-sm" style={{ color: "#626250" }}>
-              Começa grátis hoje. Passa para Pro quando precisares de mais.
+              Dois planos. Sem custos escondidos. Cancela quando quiseres.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-2xl mx-auto">
-            {/* GRÁTIS */}
+            {/* STARTER */}
             <div
               className="rounded-2xl p-8 flex flex-col"
               style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
             >
-              <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "#626250" }}>Grátis</p>
+              <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "#626250" }}>Starter</p>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="font-serif text-5xl font-bold" style={{ color: "#f5f5f0" }}>0€</span>
+                <span className="font-serif text-5xl font-bold" style={{ color: "#f5f5f0" }}>39€</span>
+                <span className="text-sm" style={{ color: "#626250" }}>/mês</span>
               </div>
-              <p className="text-sm mb-6" style={{ color: "#484640" }}>Para sempre · Sem cartão</p>
+              <p className="text-sm mb-6" style={{ color: "#484640" }}>Cancela quando quiser</p>
 
               <ul className="space-y-3 flex-1 mb-8">
                 {[
-                  ["✓", "1 restaurante"],
-                  ["✓", "Até 20 pratos"],
-                  ["✓", "QR code básico"],
-                  ["✓", "Menu público online"],
-                  ["✗", "IA de maridagem"],
-                  ["✗", "Multilingue"],
-                  ["✗", "Google Reviews"],
-                ].map(([mark, text]) => (
-                  <li key={text} className="flex items-center gap-2.5 text-sm" style={{ color: mark === "✓" ? "#7a7a62" : "#2a2820" }}>
-                    <span style={{ color: mark === "✓" ? "#e6a81e" : "#2a2820", fontSize: 12, width: 16, textAlign: "center" }}>{mark}</span>
+                  "1 restaurante",
+                  "Até 50 pratos",
+                  "IA de maridagem",
+                  "4 idiomas (PT/EN/ES/FR)",
+                  "QR code PNG para download",
+                  "Link Google Reviews no menu",
+                  "Upload de fotos",
+                  "Suporte por email",
+                ].map((text) => (
+                  <li key={text} className="flex items-center gap-2.5 text-sm" style={{ color: "#7a7a62" }}>
+                    <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#626250" }} />
                     {text}
                   </li>
                 ))}
@@ -388,7 +379,7 @@ export default function Home() {
                 className="w-full py-3 rounded-xl text-sm font-bold text-center transition-all hover:bg-white/10 block"
                 style={{ background: "rgba(255,255,255,0.06)", color: "#96967f", border: "1px solid rgba(255,255,255,0.1)" }}
               >
-                Criar menu grátis
+                Começar Starter — 39€/mês
               </Link>
             </div>
 
@@ -401,26 +392,24 @@ export default function Home() {
                 className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
                 style={{ background: "#e6a81e", color: "#1a1916" }}
               >
-                Recomendado
+                Mais popular
               </div>
 
               <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "#e6a81e" }}>Pro</p>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="font-serif text-5xl font-bold" style={{ color: "#f5f5f0" }}>29€</span>
+                <span className="font-serif text-5xl font-bold" style={{ color: "#f5f5f0" }}>69€</span>
                 <span className="text-sm" style={{ color: "#626250" }}>/mês</span>
               </div>
               <p className="text-sm mb-6" style={{ color: "#484640" }}>Cancela quando quiser</p>
 
               <ul className="space-y-3 flex-1 mb-8">
                 {[
-                  "Tudo do Grátis",
+                  "Tudo do Starter",
                   "Pratos ilimitados",
-                  "IA de maridagem",
-                  "4 idiomas (PT/EN/ES/FR)",
-                  "QR code PNG para download",
-                  "Link Google Reviews no menu",
-                  "Upload de fotos",
-                  "Suporte por email",
+                  "Categorias ilimitadas",
+                  "Múltiplos utilizadores admin",
+                  "Analytics de pratos",
+                  "Suporte prioritário",
                 ].map((text) => (
                   <li key={text} className="flex items-center gap-2.5 text-sm" style={{ color: "#96967f" }}>
                     <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#e6a81e" }} />
@@ -435,10 +424,10 @@ export default function Home() {
                 className="w-full py-3.5 rounded-xl text-sm font-bold text-center transition-all hover:brightness-110 active:scale-[0.98] block"
                 style={{ background: "#e6a81e", color: "#1a1916" }}
               >
-                Começar Pro — 29€/mês
+                Começar Pro — 69€/mês
               </Link>
 
-              <p className="text-center text-xs mt-3" style={{ color: "#3a3830" }}>14 dias grátis · Sem contrato</p>
+              <p className="text-center text-xs mt-3" style={{ color: "#3a3830" }}>Sem contrato · Cancela quando quiser</p>
             </div>
           </div>
 
@@ -466,7 +455,7 @@ export default function Home() {
             O seu menu merece melhor.
           </h2>
           <p className="text-base mb-8 leading-relaxed" style={{ color: "#626250" }}>
-            Crie o menu do seu restaurante hoje. Grátis. Sem complicações.
+            Crie o menu do seu restaurante hoje. Sem complicações.
           </p>
           <Link
             href="/menu/casa-do-mar"
