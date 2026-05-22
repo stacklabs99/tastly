@@ -403,31 +403,34 @@ function PricingToggle() {
     {
       id: "starter",
       name: "Starter",
-      desc: "Para começar sem complicações.",
+      desc: "Um restaurante, tudo o que precisa para começar.",
       monthly: 39,
+      custom: false,
       accentColor: "#626250",
       labelColor: "#96967f",
       borderStyle: { border: "1px solid rgba(255,255,255,0.08)" },
       bgStyle: { background: "rgba(255,255,255,0.03)" },
       ctaStyle: { background: "rgba(255,255,255,0.07)", color: "#96967f", border: "1px solid rgba(255,255,255,0.1)" },
       ctaHoverClass: "hover:bg-white/10",
+      ctaLabel: "Começar Starter",
       popular: false,
       features: [
         "1 restaurante",
-        "Até 60 pratos",
-        "IA de maridagem (50 consultas/mês)",
+        "Pratos e categorias ilimitados",
+        "IA de maridagem",
         "4 idiomas (PT · EN · ES · FR)",
         "QR code PNG para download",
         "Google Reviews no menu",
         "Upload de fotos",
-        "Suporte por email",
+        "Suporte 24h",
       ],
     },
     {
       id: "pro",
       name: "Pro",
-      desc: "O favorito dos restaurantes sérios.",
-      monthly: 69,
+      desc: "Para quem gere mais do que um espaço.",
+      monthly: 89,
+      custom: false,
       accentColor: "#e6a81e",
       labelColor: "#e6a81e",
       borderStyle: { border: "1px solid rgba(230,168,30,0.35)" },
@@ -437,34 +440,36 @@ function PricingToggle() {
       },
       ctaStyle: { background: "#e6a81e", color: "#1a1916" },
       ctaHoverClass: "hover:brightness-110",
+      ctaLabel: "Começar Pro",
       popular: true,
       features: [
+        "Até 3 restaurantes",
         "Tudo do Starter",
-        "Pratos e categorias ilimitados",
         "IA de maridagem ilimitada",
         "Maridagens manuais personalizadas",
         "Múltiplos utilizadores admin",
         "Analytics de pratos",
-        "Upload ilimitado de fotos",
         "Suporte prioritário",
       ],
     },
     {
-      id: "business",
-      name: "Business",
-      desc: "Para grupos e cadeias de restauração.",
-      monthly: 149,
+      id: "custom",
+      name: "Custom",
+      desc: "Grupos, cadeias e necessidades específicas.",
+      monthly: 0,
+      custom: true,
       accentColor: "#9b8ed6",
       labelColor: "#9b8ed6",
       borderStyle: { border: "1px solid rgba(155,142,214,0.2)" },
       bgStyle: { background: "rgba(155,142,214,0.03)" },
       ctaStyle: { background: "rgba(155,142,214,0.12)", color: "#b8aee6", border: "1px solid rgba(155,142,214,0.25)" },
       ctaHoverClass: "hover:brightness-110",
+      ctaLabel: "Falar connosco",
       popular: false,
       features: [
+        "Restaurantes ilimitados",
         "Tudo do Pro",
-        "Até 5 restaurantes",
-        "Sem 'Powered by Tastly'",
+        "Sem «Powered by Tastly»",
         "Dashboard multi-restaurante",
         "Gestor de conta dedicado",
         "Onboarding personalizado",
@@ -532,33 +537,42 @@ function PricingToggle() {
                 </div>
               )}
 
-              <p
-                className="text-xs font-bold uppercase tracking-widest mb-1"
-                style={{ color: plan.labelColor }}
-              >
+              <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: plan.labelColor }}>
                 {plan.name}
               </p>
               <p className="text-xs mb-5" style={{ color: "#484640" }}>{plan.desc}</p>
 
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="font-serif text-5xl font-bold" style={{ color: "#f5f5f0" }}>
-                  {price}€
-                </span>
-                <span className="text-sm" style={{ color: "#626250" }}>/mês</span>
-              </div>
-              <p className="text-xs mb-7" style={{ color: "#3a3830" }}>
-                {annual
-                  ? `${annualTotal}€ faturados anualmente`
-                  : "Faturado mensalmente · Cancela quando quiser"}
-              </p>
+              {plan.custom ? (
+                <>
+                  <div className="mb-1">
+                    <span className="font-serif text-3xl font-bold" style={{ color: "#f5f5f0" }}>Preço</span>
+                    <br />
+                    <span className="font-serif text-3xl font-bold" style={{ color: "#9b8ed6" }}>personalizado</span>
+                  </div>
+                  <p className="text-xs mb-7" style={{ color: "#3a3830" }}>
+                    Proposta adaptada ao seu grupo
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-1 mb-1">
+                    <span className="font-serif text-5xl font-bold" style={{ color: "#f5f5f0" }}>
+                      {price}€
+                    </span>
+                    <span className="text-sm" style={{ color: "#626250" }}>/mês</span>
+                  </div>
+                  <p className="text-xs mb-7" style={{ color: "#3a3830" }}>
+                    {annual
+                      ? `${annualTotal}€ faturados anualmente`
+                      : "Faturado mensalmente · Cancela quando quiser"}
+                  </p>
+                </>
+              )}
 
               <ul className="space-y-3 flex-1 mb-8">
                 {plan.features.map((text) => (
                   <li key={text} className="flex items-start gap-2.5 text-sm" style={{ color: plan.popular ? "#96967f" : "#7a7a62" }}>
-                    <Check
-                      className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"
-                      style={{ color: plan.accentColor }}
-                    />
+                    <Check className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: plan.accentColor }} />
                     {text}
                   </li>
                 ))}
@@ -569,7 +583,7 @@ function PricingToggle() {
                 className={`w-full py-3.5 rounded-xl text-sm font-bold text-center transition-all active:scale-[0.98] block ${plan.ctaHoverClass}`}
                 style={plan.ctaStyle}
               >
-                Começar {plan.name}
+                {plan.ctaLabel}
               </a>
 
               {plan.popular && (
@@ -582,16 +596,8 @@ function PricingToggle() {
         })}
       </div>
 
-      {/* Bottom note */}
-      <p className="text-center text-sm mt-10" style={{ color: "#484640" }}>
-        Mais de 5 restaurantes ou necessidades específicas?{" "}
-        <a
-          href="mailto:hello@tastly.app"
-          className="underline transition-colors hover:text-[#e6a81e]"
-          style={{ color: "#626250" }}
-        >
-          Fale connosco
-        </a>
+      <p className="text-center text-xs mt-10" style={{ color: "#3a3830" }}>
+        Todos os planos incluem SSL, backups automáticos e uptime 99.9%
       </p>
     </div>
   );
