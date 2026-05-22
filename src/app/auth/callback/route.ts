@@ -18,7 +18,9 @@ export async function GET(request: Request) {
   }
 
   const slug = searchParams.get("slug");
-  const base = next.startsWith("/") ? next : "/admin";
-  const redirectTo = slug ? `${base}?slug=${encodeURIComponent(slug)}` : base;
+  // Allowlist de paths válidos — evita open redirect via ?next=//evil.com
+  const SAFE_PATHS = ["/onboarding", "/admin", "/"];
+  const safePath = SAFE_PATHS.includes(next) ? next : "/";
+  const redirectTo = slug ? `${safePath}?slug=${encodeURIComponent(slug)}` : safePath;
   return NextResponse.redirect(`${origin}${redirectTo}`);
 }

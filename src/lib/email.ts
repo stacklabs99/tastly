@@ -9,6 +9,20 @@ const superAdmins = (): string[] =>
   (process.env.SUPER_ADMIN_EMAILS ?? process.env.SUPER_ADMIN_EMAIL ?? "")
     .split(",").map((e) => e.trim()).filter(Boolean);
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
+function safeSubject(str: string): string {
+  // Remove newlines to prevent email header injection
+  return str.replace(/[\r\n]/g, " ").trim();
+}
+
 function wrap(content: string) {
   return `<!DOCTYPE html>
 <html lang="pt">
@@ -44,6 +58,7 @@ export async function sendNewRegistrationEmail(userEmail: string): Promise<void>
   if (to.length === 0) return;
 
   const adminUrl = `${SITE_URL}/admin/utilizadores`;
+  const safeEmail = escapeHtml(userEmail);
 
   const html = wrap(`
     <h2 style="margin:0 0 8px;font-size:20px;color:#1a1916;">Novo registo pendente</h2>
@@ -55,7 +70,7 @@ export async function sendNewRegistrationEmail(userEmail: string): Promise<void>
         <td style="font-size:12px;color:#96967f;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;padding-bottom:4px;">Email</td>
       </tr>
       <tr>
-        <td style="font-size:15px;color:#1a1916;font-weight:500;">${userEmail}</td>
+        <td style="font-size:15px;color:#1a1916;font-weight:500;">${safeEmail}</td>
       </tr>
     </table>
     <a href="${adminUrl}" style="display:inline-block;background:#c49516;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 24px;border-radius:10px;">
@@ -69,9 +84,9 @@ export async function sendNewRegistrationEmail(userEmail: string): Promise<void>
   await resend.emails.send({
     from: FROM,
     to,
-    subject: `Novo registo pendente — ${userEmail}`,
+    subject: safeSubject(`Novo registo pendente — ${userEmail}`),
     html,
-  }).catch(() => null); // best-effort — não bloquear o fluxo
+  }).catch(() => null);
 }
 
 // ── Notificar utilizador quando aprovado ──────────────────────────────────────
