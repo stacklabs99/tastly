@@ -2,9 +2,26 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseServiceClient } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 
 function db() {
   return createSupabaseServiceClient();
+}
+
+// Verifies the caller is an allowed super admin. Throws otherwise.
+async function assertSuperAdmin(): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) throw new Error("Não autenticado");
+
+  const allowed = (process.env.SUPER_ADMIN_EMAILS ?? process.env.SUPER_ADMIN_EMAIL ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (!allowed.includes(user.email.toLowerCase())) {
+    throw new Error("Acesso negado");
+  }
 }
 
 export type RestaurantRow = {
@@ -42,6 +59,7 @@ export type RestaurantDetail = RestaurantRow & {
 // ── List all restaurants with stats ──────────────────────────────────────────
 
 export async function listAllRestaurants(): Promise<RestaurantRow[]> {
+  await assertSuperAdmin();
   const supabase = db();
 
   const [{ data: restaurants }, { data: dishes }, { data: categories }, { data: usersData }] =
@@ -86,6 +104,7 @@ export async function listAllRestaurants(): Promise<RestaurantRow[]> {
 // ── Restaurant detail ─────────────────────────────────────────────────────────
 
 export async function getRestaurantDetailAdmin(id: string): Promise<RestaurantDetail | null> {
+  await assertSuperAdmin();
   const supabase = db();
 
   const [{ data: r }, { data: rawDishes }, { data: cats }, { data: usersData }] =
@@ -137,6 +156,7 @@ export async function getRestaurantDetailAdmin(id: string): Promise<RestaurantDe
 // ── Toggle active ─────────────────────────────────────────────────────────────
 
 export async function setRestaurantActiveAction(id: string, isActive: boolean) {
+  await assertSuperAdmin();
   const { error } = await db()
     .from("restaurants")
     .update({ is_active: isActive })
@@ -149,8 +169,36 @@ export async function setRestaurantActiveAction(id: string, isActive: boolean) {
 // ── Delete restaurant ─────────────────────────────────────────────────────────
 
 export async function deleteRestaurantAdminAction(id: string) {
+  await assertSuperAdmin();
   const supabase = db();
-  // Cascade: dishes and categories have restaurant_id FK — delete them first
+
+  // Collect all Supabase storage URLs before deleting rows
+  const [{ data: dishes }, { data: restaurant }] = await Promise.all([
+    supabase.from("dishes").select("image_url").eq("restaurant_id", id),
+    supabase.from("restaurants").select("cover_url, logo_url").eq("id", id).single(),
+  ]);
+
+  // Extract storage paths (only files hosted in our dish-images bucket)
+  const storageBase = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/dish-images/`;
+  const storagePaths: string[] = [];
+
+  (dishes ?? []).forEach(({ image_url }) => {
+    if (image_url?.startsWith(storageBase)) {
+      storagePaths.push(image_url.replace(storageBase, ""));
+    }
+  });
+  [restaurant?.cover_url, restaurant?.logo_url].forEach((url) => {
+    if (url?.startsWith(storageBase)) {
+      storagePaths.push(url.replace(storageBase, ""));
+    }
+  });
+
+  // Delete storage files (best-effort — don't block on failure)
+  if (storagePaths.length > 0) {
+    await supabase.storage.from("dish-images").remove(storagePaths).catch(() => null);
+  }
+
+  // Cascade: delete dishes → categories → restaurant
   await supabase.from("dishes").delete().eq("restaurant_id", id);
   await supabase.from("categories").delete().eq("restaurant_id", id);
   const { error } = await supabase.from("restaurants").delete().eq("id", id);
@@ -161,6 +209,7 @@ export async function deleteRestaurantAdminAction(id: string) {
 // ── Platform stats ────────────────────────────────────────────────────────────
 
 export async function getPlatformStats() {
+  await assertSuperAdmin();
   const supabase = db();
   const now = new Date();
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();

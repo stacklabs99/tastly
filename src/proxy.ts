@@ -24,27 +24,36 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const isLoginPage = pathname.endsWith("/login");
+  const isLoginPage = pathname.endsWith("/login") || pathname === "/auth/login";
+  const isPlatformAdmin = pathname.startsWith("/admin");
 
   if (!user && !isLoginPage) {
-    const slugMatch = pathname.match(/\/menu\/([^/]+)\/admin/);
-    const slug = slugMatch?.[1] ?? "";
     const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = `/menu/${slug}/admin/login`;
+    if (isPlatformAdmin) {
+      loginUrl.pathname = "/auth/login";
+    } else {
+      const slugMatch = pathname.match(/\/menu\/([^/]+)\/admin/);
+      const slug = slugMatch?.[1] ?? "";
+      loginUrl.pathname = `/menu/${slug}/admin/login`;
+    }
     return NextResponse.redirect(loginUrl);
   }
 
   if (user && isLoginPage) {
-    const slugMatch = pathname.match(/\/menu\/([^/]+)\/admin/);
-    const slug = slugMatch?.[1] ?? "";
-    const adminUrl = request.nextUrl.clone();
-    adminUrl.pathname = `/menu/${slug}/admin`;
-    return NextResponse.redirect(adminUrl);
+    const redirectUrl = request.nextUrl.clone();
+    if (pathname === "/auth/login") {
+      redirectUrl.pathname = "/admin";
+    } else {
+      const slugMatch = pathname.match(/\/menu\/([^/]+)\/admin/);
+      const slug = slugMatch?.[1] ?? "";
+      redirectUrl.pathname = `/menu/${slug}/admin`;
+    }
+    return NextResponse.redirect(redirectUrl);
   }
 
   return supabaseResponse;
 }
 
 export const config = {
-  matcher: ["/menu/:slug/admin/:path*"],
+  matcher: ["/menu/:slug/admin/:path*", "/admin/:path*", "/admin", "/auth/login"],
 };

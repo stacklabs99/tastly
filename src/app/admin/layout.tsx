@@ -3,7 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { Toaster } from "@/components/ui/Toaster";
 import { LayoutDashboard, Store, LogOut, Shield } from "lucide-react";
 import Link from "next/link";
-import { signOutAction } from "@/actions/auth";
+import { signOutPlatformAction } from "@/actions/auth";
 
 type Props = { children: React.ReactNode };
 
@@ -15,8 +15,11 @@ export default async function SuperAdminLayout({ children }: Props) {
 
   if (!user) redirect("/auth/login");
 
-  const allowedEmail = process.env.SUPER_ADMIN_EMAIL;
-  if (!allowedEmail || user.email !== allowedEmail) {
+  const allowedEmails = (process.env.SUPER_ADMIN_EMAILS ?? process.env.SUPER_ADMIN_EMAIL ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  if (!allowedEmails.includes((user.email ?? "").toLowerCase())) {
     redirect("/");
   }
 
@@ -60,7 +63,7 @@ export default async function SuperAdminLayout({ children }: Props) {
             <Shield className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#9b8ed6" }} />
             <span className="text-[11px] font-semibold" style={{ color: "#9b8ed6" }}>Super Admin</span>
           </div>
-          <form action={signOutAction.bind(null, "")}>
+          <form action={signOutPlatformAction}>
             <button
               type="submit"
               className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all hover:bg-white/5"

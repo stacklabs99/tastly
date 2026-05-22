@@ -8,3 +8,9 @@ export async function signOutAction(slug: string) {
   await supabase.auth.signOut();
   redirect(`/menu/${slug}/admin/login`);
 }
+
+export async function signOutPlatformAction() {
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
+  redirect("/auth/login");
+}

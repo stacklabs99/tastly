@@ -11,5 +11,9 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  return NextResponse.redirect(`${origin}${next}`);
+  const { searchParams: sp } = new URL(request.url);
+  const slug = sp.get("slug");
+  const base = next.startsWith("/") ? next : "/admin";
+  const redirectTo = slug ? `${base}?slug=${encodeURIComponent(slug)}` : base;
+  return NextResponse.redirect(`${origin}${redirectTo}`);
 }
