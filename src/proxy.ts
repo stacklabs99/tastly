@@ -20,7 +20,7 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  // getUser() validates the JWT server-side — never trust getSession() alone
+  // Validates JWT server-side — never trust getSession() alone
   const { data: { user } } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
@@ -34,7 +34,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Already logged in → don't show the login page
   if (user && isLoginPage) {
     const slugMatch = pathname.match(/\/menu\/([^/]+)\/admin/);
     const slug = slugMatch?.[1] ?? "";

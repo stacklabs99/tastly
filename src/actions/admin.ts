@@ -167,7 +167,20 @@ export async function addDishAction(dish: Omit<Dish, "id" | "created_at" | "upda
   };
 }
 
+async function assertDishOwnership(dishId: string, slug: string) {
+  const { data } = await db()
+    .from("dishes")
+    .select("restaurant_id, restaurants!inner(slug)")
+    .eq("id", dishId)
+    .single();
+  const rest = data?.restaurants as unknown as { slug: string } | null;
+  if (!data || rest?.slug !== slug) {
+    throw new Error("Acesso negado");
+  }
+}
+
 export async function updateDishAction(id: string, updates: Partial<Dish>, slug: string) {
+  await assertDishOwnership(id, slug);
   const { error } = await db().from("dishes").update({
     category_id: updates.category_id,
     name: updates.name,
@@ -192,6 +205,7 @@ export async function updateDishAction(id: string, updates: Partial<Dish>, slug:
 }
 
 export async function deleteDishAction(id: string, slug: string) {
+  await assertDishOwnership(id, slug);
   const { error } = await db().from("dishes").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath(`/menu/${slug}`);

@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { AdminProvider } from "@/contexts/AdminContext";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminErrorBanner } from "@/components/admin/AdminErrorBanner";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getRestaurantBySlug } from "@/lib/db";
 
@@ -26,6 +27,7 @@ export default async function ProtectedAdminLayout({ children, params }: Props) 
         <AdminSidebar slug={slug} userEmail={user.email ?? ""} />
         <main className="flex-1 overflow-auto min-w-0">
           <div className="md:hidden h-14" />
+          <AdminErrorBanner />
           {children}
         </main>
       </div>

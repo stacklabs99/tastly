@@ -20,6 +20,7 @@ type AdminContextType = {
   categories: Category[];
   restaurant: Restaurant;
   loading: boolean;
+  loadError: boolean;
   addDish: (dish: Omit<Dish, "id" | "created_at" | "updated_at">) => Promise<Dish>;
   updateDish: (id: string, updates: Partial<Dish>) => Promise<void>;
   deleteDish: (id: string) => Promise<void>;
@@ -48,6 +49,7 @@ export function AdminProvider({ children, slug }: Props) {
     created_at: new Date().toISOString(),
   });
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [useSupabase, setUseSupabase] = useState(false);
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export function AdminProvider({ children, slug }: Props) {
           setUseSupabase(true);
         }
       } catch {
-        // Supabase not configured — fall back to mock data
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -132,7 +134,7 @@ export function AdminProvider({ children, slug }: Props) {
   }, [useSupabase, slug, restaurant.id]);
 
   return (
-    <AdminContext.Provider value={{ dishes, categories, restaurant, loading, addDish, updateDish, deleteDish, addCategory, updateCategory, deleteCategory, updateRestaurant }}>
+    <AdminContext.Provider value={{ dishes, categories, restaurant, loading, loadError, addDish, updateDish, deleteDish, addCategory, updateCategory, deleteCategory, updateRestaurant }}>
       {children}
     </AdminContext.Provider>
   );
