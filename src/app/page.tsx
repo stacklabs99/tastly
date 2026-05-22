@@ -429,7 +429,7 @@ function PricingToggle() {
       id: "pro",
       name: "Pro",
       desc: "Para quem gere mais do que um espaço.",
-      monthly: 89,
+      monthly: 69,
       custom: false,
       accentColor: "#e6a81e",
       labelColor: "#e6a81e",
