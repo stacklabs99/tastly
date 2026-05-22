@@ -331,114 +331,19 @@ export default function Home() {
 
       {/* ── PREÇOS ── */}
       <section id="precos" className="py-20 px-5" style={{ background: "rgba(255,255,255,0.012)" }}>
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
             <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#484640" }}>Preços</p>
             <h2 className="font-serif text-3xl md:text-4xl font-bold" style={{ color: "#f5f5f0" }}>
               Simples. Transparente. Sem surpresas.
             </h2>
             <p className="mt-3 text-sm" style={{ color: "#626250" }}>
-              Dois planos. Sem custos escondidos. Cancela quando quiseres.
+              Três planos. Sem custos escondidos. Cancela quando quiseres.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-2xl mx-auto">
-            {/* STARTER */}
-            <div
-              className="rounded-2xl p-8 flex flex-col"
-              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
-            >
-              <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "#626250" }}>Starter</p>
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="font-serif text-5xl font-bold" style={{ color: "#f5f5f0" }}>39€</span>
-                <span className="text-sm" style={{ color: "#626250" }}>/mês</span>
-              </div>
-              <p className="text-sm mb-6" style={{ color: "#484640" }}>Cancela quando quiser</p>
-
-              <ul className="space-y-3 flex-1 mb-8">
-                {[
-                  "1 restaurante",
-                  "Até 50 pratos",
-                  "IA de maridagem",
-                  "4 idiomas (PT/EN/ES/FR)",
-                  "QR code PNG para download",
-                  "Link Google Reviews no menu",
-                  "Upload de fotos",
-                  "Suporte por email",
-                ].map((text) => (
-                  <li key={text} className="flex items-center gap-2.5 text-sm" style={{ color: "#7a7a62" }}>
-                    <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#626250" }} />
-                    {text}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/menu/casa-do-mar"
-                target="_blank"
-                className="w-full py-3 rounded-xl text-sm font-bold text-center transition-all hover:bg-white/10 block"
-                style={{ background: "rgba(255,255,255,0.06)", color: "#96967f", border: "1px solid rgba(255,255,255,0.1)" }}
-              >
-                Começar Starter — 39€/mês
-              </Link>
-            </div>
-
-            {/* PRO */}
-            <div
-              className="rounded-2xl p-8 flex flex-col relative"
-              style={{ background: "rgba(230,168,30,0.05)", border: "1px solid rgba(230,168,30,0.28)" }}
-            >
-              <div
-                className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                style={{ background: "#e6a81e", color: "#1a1916" }}
-              >
-                Mais popular
-              </div>
-
-              <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "#e6a81e" }}>Pro</p>
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="font-serif text-5xl font-bold" style={{ color: "#f5f5f0" }}>69€</span>
-                <span className="text-sm" style={{ color: "#626250" }}>/mês</span>
-              </div>
-              <p className="text-sm mb-6" style={{ color: "#484640" }}>Cancela quando quiser</p>
-
-              <ul className="space-y-3 flex-1 mb-8">
-                {[
-                  "Tudo do Starter",
-                  "Pratos ilimitados",
-                  "Categorias ilimitadas",
-                  "Múltiplos utilizadores admin",
-                  "Analytics de pratos",
-                  "Suporte prioritário",
-                ].map((text) => (
-                  <li key={text} className="flex items-center gap-2.5 text-sm" style={{ color: "#96967f" }}>
-                    <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#e6a81e" }} />
-                    {text}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/menu/casa-do-mar"
-                target="_blank"
-                className="w-full py-3.5 rounded-xl text-sm font-bold text-center transition-all hover:brightness-110 active:scale-[0.98] block"
-                style={{ background: "#e6a81e", color: "#1a1916" }}
-              >
-                Começar Pro — 69€/mês
-              </Link>
-
-              <p className="text-center text-xs mt-3" style={{ color: "#3a3830" }}>Sem contrato · Cancela quando quiser</p>
-            </div>
-          </div>
-
-          {/* Enterprise note */}
-          <p className="text-center text-sm mt-8" style={{ color: "#484640" }}>
-            Grupo de restaurantes?{" "}
-            <a href="mailto:hello@tastly.app" className="underline transition-colors hover:text-[#e6a81e]" style={{ color: "#626250" }}>
-              Fale connosco
-            </a>{" "}
-            para plano personalizado.
-          </p>
+          {/* Billing toggle */}
+          <PricingToggle />
         </div>
       </section>
 
@@ -486,6 +391,208 @@ export default function Home() {
           <p className="text-xs" style={{ color: "#2a2820" }}>© {new Date().getFullYear()} Tastly</p>
         </div>
       </footer>
+    </div>
+  );
+}
+
+/* ── Pricing Toggle + 3 plans ── */
+function PricingToggle() {
+  const [annual, setAnnual] = useState(false);
+
+  const plans = [
+    {
+      id: "starter",
+      name: "Starter",
+      desc: "Para começar sem complicações.",
+      monthly: 39,
+      accentColor: "#626250",
+      labelColor: "#96967f",
+      borderStyle: { border: "1px solid rgba(255,255,255,0.08)" },
+      bgStyle: { background: "rgba(255,255,255,0.03)" },
+      ctaStyle: { background: "rgba(255,255,255,0.07)", color: "#96967f", border: "1px solid rgba(255,255,255,0.1)" },
+      ctaHoverClass: "hover:bg-white/10",
+      popular: false,
+      features: [
+        "1 restaurante",
+        "Até 60 pratos",
+        "IA de maridagem (50 consultas/mês)",
+        "4 idiomas (PT · EN · ES · FR)",
+        "QR code PNG para download",
+        "Google Reviews no menu",
+        "Upload de fotos",
+        "Suporte por email",
+      ],
+    },
+    {
+      id: "pro",
+      name: "Pro",
+      desc: "O favorito dos restaurantes sérios.",
+      monthly: 69,
+      accentColor: "#e6a81e",
+      labelColor: "#e6a81e",
+      borderStyle: { border: "1px solid rgba(230,168,30,0.35)" },
+      bgStyle: {
+        background: "rgba(230,168,30,0.05)",
+        boxShadow: "0 0 60px rgba(230,168,30,0.07), 0 20px 60px rgba(0,0,0,0.3)",
+      },
+      ctaStyle: { background: "#e6a81e", color: "#1a1916" },
+      ctaHoverClass: "hover:brightness-110",
+      popular: true,
+      features: [
+        "Tudo do Starter",
+        "Pratos e categorias ilimitados",
+        "IA de maridagem ilimitada",
+        "Maridagens manuais personalizadas",
+        "Múltiplos utilizadores admin",
+        "Analytics de pratos",
+        "Upload ilimitado de fotos",
+        "Suporte prioritário",
+      ],
+    },
+    {
+      id: "business",
+      name: "Business",
+      desc: "Para grupos e cadeias de restauração.",
+      monthly: 149,
+      accentColor: "#9b8ed6",
+      labelColor: "#9b8ed6",
+      borderStyle: { border: "1px solid rgba(155,142,214,0.2)" },
+      bgStyle: { background: "rgba(155,142,214,0.03)" },
+      ctaStyle: { background: "rgba(155,142,214,0.12)", color: "#b8aee6", border: "1px solid rgba(155,142,214,0.25)" },
+      ctaHoverClass: "hover:brightness-110",
+      popular: false,
+      features: [
+        "Tudo do Pro",
+        "Até 5 restaurantes",
+        "Sem 'Powered by Tastly'",
+        "Dashboard multi-restaurante",
+        "Gestor de conta dedicado",
+        "Onboarding personalizado",
+        "SLA garantido",
+        "Faturação consolidada",
+      ],
+    },
+  ];
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      {/* Toggle */}
+      <div className="flex items-center justify-center gap-3 mb-12">
+        <button
+          onClick={() => setAnnual(false)}
+          className="text-sm font-medium transition-colors"
+          style={{ color: !annual ? "#f0efe9" : "#484640" }}
+        >
+          Mensal
+        </button>
+        <button
+          onClick={() => setAnnual((v) => !v)}
+          className="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
+          style={{ background: annual ? "#e6a81e" : "rgba(255,255,255,0.1)" }}
+          aria-label="Toggle faturação anual"
+        >
+          <span
+            className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform bg-white"
+            style={{ transform: annual ? "translateX(20px)" : "translateX(0)" }}
+          />
+        </button>
+        <button
+          onClick={() => setAnnual(true)}
+          className="text-sm font-medium transition-colors flex items-center gap-2"
+          style={{ color: annual ? "#f0efe9" : "#484640" }}
+        >
+          Anual
+          <span
+            className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+            style={{ background: "rgba(230,168,30,0.15)", color: "#e6a81e" }}
+          >
+            -20%
+          </span>
+        </button>
+      </div>
+
+      {/* Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+        {plans.map((plan) => {
+          const price = annual ? Math.round(plan.monthly * 0.8) : plan.monthly;
+          const annualTotal = Math.round(plan.monthly * 0.8 * 12);
+
+          return (
+            <div
+              key={plan.id}
+              className={`rounded-2xl p-8 flex flex-col relative ${plan.popular ? "md:-mt-4 md:mb-4" : ""}`}
+              style={{ ...plan.bgStyle, ...plan.borderStyle }}
+            >
+              {plan.popular && (
+                <div
+                  className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap"
+                  style={{ background: "#e6a81e", color: "#1a1916" }}
+                >
+                  ★ Mais popular
+                </div>
+              )}
+
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-1"
+                style={{ color: plan.labelColor }}
+              >
+                {plan.name}
+              </p>
+              <p className="text-xs mb-5" style={{ color: "#484640" }}>{plan.desc}</p>
+
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="font-serif text-5xl font-bold" style={{ color: "#f5f5f0" }}>
+                  {price}€
+                </span>
+                <span className="text-sm" style={{ color: "#626250" }}>/mês</span>
+              </div>
+              <p className="text-xs mb-7" style={{ color: "#3a3830" }}>
+                {annual
+                  ? `${annualTotal}€ faturados anualmente`
+                  : "Faturado mensalmente · Cancela quando quiser"}
+              </p>
+
+              <ul className="space-y-3 flex-1 mb-8">
+                {plan.features.map((text) => (
+                  <li key={text} className="flex items-start gap-2.5 text-sm" style={{ color: plan.popular ? "#96967f" : "#7a7a62" }}>
+                    <Check
+                      className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"
+                      style={{ color: plan.accentColor }}
+                    />
+                    {text}
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href="mailto:hello@tastly.app"
+                className={`w-full py-3.5 rounded-xl text-sm font-bold text-center transition-all active:scale-[0.98] block ${plan.ctaHoverClass}`}
+                style={plan.ctaStyle}
+              >
+                Começar {plan.name}
+              </a>
+
+              {plan.popular && (
+                <p className="text-center text-xs mt-3" style={{ color: "#3a3830" }}>
+                  Sem contrato · Cancela quando quiser
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Bottom note */}
+      <p className="text-center text-sm mt-10" style={{ color: "#484640" }}>
+        Mais de 5 restaurantes ou necessidades específicas?{" "}
+        <a
+          href="mailto:hello@tastly.app"
+          className="underline transition-colors hover:text-[#e6a81e]"
+          style={{ color: "#626250" }}
+        >
+          Fale connosco
+        </a>
+      </p>
     </div>
   );
 }
