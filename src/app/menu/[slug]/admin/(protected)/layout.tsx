@@ -1,7 +1,8 @@
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { AdminProvider } from "@/contexts/AdminContext";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { getRestaurantBySlug } from "@/lib/db";
 
 type Props = {
   children: React.ReactNode;
@@ -14,6 +15,10 @@ export default async function ProtectedAdminLayout({ children, params }: Props) 
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/menu/${slug}/admin/login`);
+
+  const restaurant = await getRestaurantBySlug(slug);
+  if (!restaurant) notFound();
+  if (restaurant.owner_id !== user.id) redirect(`/menu/${slug}/admin/login`);
 
   return (
     <AdminProvider slug={slug}>
