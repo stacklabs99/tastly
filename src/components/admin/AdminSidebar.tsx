@@ -138,6 +138,30 @@ export function AdminSidebar({ slug, userEmail }: Props) {
         })}
       </nav>
 
+      {/* Trial banner */}
+      {(!collapsed || mobile) && (() => {
+        const trialEnds = restaurant.trial_ends_at ? new Date(restaurant.trial_ends_at) : null;
+        const now = new Date();
+        if (!trialEnds) return null;
+        const daysLeft = Math.ceil((trialEnds.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        const expired = daysLeft <= 0;
+        if (!expired && daysLeft > 15) return null;
+        return (
+          <div
+            className="mx-3 mb-2 px-3 py-2.5 rounded-xl text-xs"
+            style={expired
+              ? { background: "rgba(230,126,75,0.08)", border: "1px solid rgba(230,126,75,0.2)", color: "#e67e4b" }
+              : { background: "rgba(230,168,30,0.08)", border: "1px solid rgba(230,168,30,0.2)", color: "#e6a81e" }
+            }
+          >
+            {expired
+              ? <><strong>Trial expirado.</strong> Contacta-nos para continuar.</>
+              : <><strong>{daysLeft} dia{daysLeft !== 1 ? "s" : ""}</strong> de trial restantes.</>
+            }
+          </div>
+        );
+      })()}
+
       {/* Bottom */}
       <div
         className="border-t flex-shrink-0 space-y-0.5"

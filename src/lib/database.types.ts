@@ -13,6 +13,8 @@ type RestaurantRow = {
   primary_color: string | null;
   owner_id: string;
   is_active: boolean;
+  plan: string;
+  trial_ends_at: string;
   created_at: string;
 };
 

@@ -25,12 +25,17 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isLoginPage = pathname.endsWith("/login") || pathname === "/auth/login";
+  const isSignupPage = pathname === "/auth/signup";
+  const isOnboarding = pathname === "/onboarding";
   const isPlatformAdmin = pathname.startsWith("/admin");
 
-  if (!user && !isLoginPage) {
+  // Unauthenticated: redirect to appropriate login
+  if (!user && !isLoginPage && !isSignupPage) {
     const loginUrl = request.nextUrl.clone();
     if (isPlatformAdmin) {
       loginUrl.pathname = "/auth/login";
+    } else if (isOnboarding) {
+      loginUrl.pathname = "/auth/signup";
     } else {
       const slugMatch = pathname.match(/\/menu\/([^/]+)\/admin/);
       const slug = slugMatch?.[1] ?? "";
@@ -39,15 +44,26 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (user && isLoginPage) {
+  // Authenticated on platform login → go to admin
+  if (user && pathname === "/auth/login") {
     const redirectUrl = request.nextUrl.clone();
-    if (pathname === "/auth/login") {
-      redirectUrl.pathname = "/admin";
-    } else {
-      const slugMatch = pathname.match(/\/menu\/([^/]+)\/admin/);
-      const slug = slugMatch?.[1] ?? "";
-      redirectUrl.pathname = `/menu/${slug}/admin`;
-    }
+    redirectUrl.pathname = "/admin";
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  // Authenticated on signup → go to onboarding (layout will redirect if already has restaurant)
+  if (user && isSignupPage) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/onboarding";
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  // Authenticated on restaurant login → go to admin
+  if (user && isLoginPage && !isSignupPage && pathname !== "/auth/login") {
+    const slugMatch = pathname.match(/\/menu\/([^/]+)\/admin/);
+    const slug = slugMatch?.[1] ?? "";
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = `/menu/${slug}/admin`;
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -55,5 +71,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/menu/:slug/admin/:path*", "/admin/:path*", "/admin", "/auth/login"],
+  matcher: ["/menu/:slug/admin/:path*", "/admin/:path*", "/admin", "/auth/login", "/auth/signup", "/onboarding"],
 };

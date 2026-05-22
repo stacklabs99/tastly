@@ -116,21 +116,21 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
-                  href="/menu/casa-do-mar"
-                  target="_blank"
+                  href="/auth/signup"
                   className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-bold transition-all active:scale-[0.98] hover:brightness-110"
                   style={{ background: "#e6a81e", color: "#1a1916" }}
                 >
-                  Ver demo a funcionar
+                  Começar Grátis — 15 dias
                   <ArrowRight className="w-4 h-4" />
                 </Link>
-                <a
-                  href="#precos"
+                <Link
+                  href="/menu/casa-do-mar"
+                  target="_blank"
                   className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-medium transition-all hover:bg-white/5"
                   style={{ border: "1px solid rgba(255,255,255,0.1)", color: "#626250" }}
                 >
-                  Ver preços
-                </a>
+                  Ver demo
+                </Link>
               </div>
 
               <p className="mt-4 text-xs" style={{ color: "#3a3830" }}>
@@ -592,7 +592,7 @@ function PricingToggle() {
               </ul>
 
               <a
-                href="mailto:hello@tastly.app"
+                href={plan.custom ? "mailto:hello@tastly.pt" : `/auth/signup?plan=${plan.id}`}
                 className={`w-full py-3.5 rounded-xl text-sm font-bold text-center transition-all active:scale-[0.98] block ${plan.ctaHoverClass}`}
                 style={plan.ctaStyle}
               >

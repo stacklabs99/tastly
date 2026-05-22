@@ -18,6 +18,8 @@ export const mockRestaurant: Restaurant = {
   primary_color: "#e6a81e",
   owner_id: "owner-001",
   is_active: true,
+  plan: "pro",
+  trial_ends_at: new Date(Date.now() + 15 * 864e5).toISOString(),
   created_at: new Date().toISOString(),
 };
 

@@ -56,6 +56,8 @@ export type ManualPairings = {
   desserts: RecommendationItem[];
 };
 
+export type Plan = "starter" | "pro" | "custom";
+
 export type Restaurant = {
   id: string;
   slug: string;
@@ -70,6 +72,8 @@ export type Restaurant = {
   review_url?: string;
   owner_id: string;
   is_active: boolean;
+  plan: Plan;
+  trial_ends_at: string;
   created_at: string;
 };
 
