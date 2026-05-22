@@ -61,8 +61,7 @@ export async function createRestaurantAction(input: {
     .eq("owner_id", user.id);
 
   const count = owned?.length ?? 0;
-  if (input.plan === "starter" && count >= 1) throw new Error("O plano Starter permite apenas 1 restaurante.");
-  if (input.plan === "pro" && count >= 3) throw new Error("O plano Pro permite até 3 restaurantes.");
+  if (count >= 1) throw new Error("Durante o trial só é permitido 1 restaurante.");
 
   const trialEndsAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString();
 

@@ -1,5 +1,14 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
+type ProfileRow = {
+  id: string;
+  email: string;
+  approved: boolean;
+  approved_at: string | null;
+  approved_by: string | null;
+  created_at: string;
+};
+
 type RestaurantRow = {
   id: string;
   slug: string;
@@ -65,6 +74,11 @@ export type Database = {
         Row: DishRow;
         Insert: Partial<DishRow> & { restaurant_id: string; category_id: string; name: string; description: string; price: number };
         Update: Partial<DishRow>;
+      };
+      profiles: {
+        Row: ProfileRow;
+        Insert: Partial<ProfileRow> & { id: string; email: string };
+        Update: Partial<ProfileRow>;
       };
     };
     Views: Record<string, never>;

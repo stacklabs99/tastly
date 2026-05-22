@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, MailCheck } from "lucide-react";
 import Link from "next/link";
 
 export default function SignupPage() {
@@ -14,6 +14,7 @@ export default function SignupPage() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [confirming, setConfirming] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,10 +26,20 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const supabase = getSupabaseBrowserClient();
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding` },
+      });
       if (error) throw error;
-      router.push("/onboarding");
-      router.refresh();
+      if (data.session) {
+        // Auto-confirmed (dev mode) — go straight to onboarding
+        router.push("/onboarding");
+        router.refresh();
+      } else {
+        // Email confirmation required
+        setConfirming(true);
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
       if (msg.includes("already registered")) {
@@ -46,6 +57,34 @@ export default function SignupPage() {
     border: "1px solid rgba(255,255,255,0.1)",
     color: "#f0efe9",
   };
+
+  if (confirming) {
+    return (
+      <div className="min-h-dvh flex flex-col items-center justify-center px-4" style={{ background: "#0f0f0d" }}>
+        <div
+          className="w-full max-w-sm rounded-2xl p-8 text-center space-y-4"
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+        >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto" style={{ background: "rgba(230,168,30,0.12)" }}>
+            <MailCheck className="w-6 h-6" style={{ color: "#e6a81e" }} />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold mb-1" style={{ color: "#f0efe9" }}>Verifica o teu email</h2>
+            <p className="text-sm" style={{ color: "#626250" }}>
+              Enviámos um link de confirmação para <strong style={{ color: "#848470" }}>{email}</strong>.<br />
+              Clica no link para activares a conta e configurares o teu restaurante.
+            </p>
+          </div>
+          <p className="text-xs" style={{ color: "#3a3830" }}>
+            Não recebeste o email? Verifica o spam ou{" "}
+            <button onClick={() => setConfirming(false)} className="underline hover:text-[#e6a81e] transition-colors">
+              tenta novamente
+            </button>.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-4" style={{ background: "#0f0f0d" }}>

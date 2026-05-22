@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseServiceClient } from "@/lib/supabase";
 import { Toaster } from "@/components/ui/Toaster";
-import { LayoutDashboard, Store, LogOut, Shield } from "lucide-react";
+import { LayoutDashboard, Store, LogOut, Shield, Users } from "lucide-react";
 import Link from "next/link";
 import { signOutPlatformAction } from "@/actions/auth";
 
@@ -22,6 +23,13 @@ export default async function SuperAdminLayout({ children }: Props) {
   if (!allowedEmails.includes((user.email ?? "").toLowerCase())) {
     redirect("/");
   }
+
+  // Count pending approvals for badge
+  const service = createSupabaseServiceClient();
+  const { count: pendingCount } = await service
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("approved", false);
 
   return (
     <div className="flex min-h-dvh" style={{ background: "#0d0d0b" }}>
@@ -51,6 +59,9 @@ export default async function SuperAdminLayout({ children }: Props) {
           </NavLink>
           <NavLink href="/admin/restaurantes" icon={<Store className="w-4 h-4" />}>
             Restaurantes
+          </NavLink>
+          <NavLink href="/admin/utilizadores" icon={<Users className="w-4 h-4" />} badge={pendingCount ?? 0}>
+            Utilizadores
           </NavLink>
         </nav>
 
@@ -89,11 +100,14 @@ export default async function SuperAdminLayout({ children }: Props) {
 function NavLink({
   href,
   icon,
-  exact,
+  badge,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  exact: _exact,
   children,
 }: {
   href: string;
   icon: React.ReactNode;
+  badge?: number;
   exact?: boolean;
   children: React.ReactNode;
 }) {
@@ -104,7 +118,15 @@ function NavLink({
       style={{ color: "#626250" }}
     >
       {icon}
-      {children}
+      <span className="flex-1">{children}</span>
+      {badge && badge > 0 ? (
+        <span
+          className="text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+          style={{ background: "rgba(230,126,75,0.2)", color: "#e67e4b" }}
+        >
+          {badge}
+        </span>
+      ) : null}
     </Link>
   );
 }

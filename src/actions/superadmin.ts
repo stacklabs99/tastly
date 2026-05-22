@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServiceClient } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { sendAccountApprovedEmail } from "@/lib/email";
 
 function db() {
   return createSupabaseServiceClient();
@@ -204,6 +205,74 @@ export async function deleteRestaurantAdminAction(id: string) {
   const { error } = await supabase.from("restaurants").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/restaurantes");
+}
+
+// ── User approvals ───────────────────────────────────────────────────────────
+
+export type PendingUser = {
+  id: string;
+  email: string;
+  created_at: string;
+};
+
+export async function listPendingUsers(): Promise<PendingUser[]> {
+  await assertSuperAdmin();
+  const supabase = db();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, email, created_at")
+    .eq("approved", false)
+    .order("created_at", { ascending: true });
+  return (data ?? []).map((p) => ({
+    id: p.id,
+    email: p.email,
+    created_at: p.created_at,
+  }));
+}
+
+export async function approveUserAction(userId: string) {
+  await assertSuperAdmin();
+  const supabase = await createSupabaseServerClient();
+  const { data: { user: admin } } = await supabase.auth.getUser();
+
+  // Fetch the profile to get the user's email before updating
+  const { data: profile } = await db()
+    .from("profiles")
+    .select("email")
+    .eq("id", userId)
+    .eq("approved", false)
+    .single();
+
+  if (!profile) throw new Error("Utilizador não encontrado ou já aprovado.");
+
+  const { error } = await db()
+    .from("profiles")
+    .update({ approved: true, approved_at: new Date().toISOString(), approved_by: admin?.email ?? "" })
+    .eq("id", userId);
+  if (error) throw new Error(error.message);
+
+  // Notify the user their account is approved
+  await sendAccountApprovedEmail(profile.email);
+
+  revalidatePath("/admin/utilizadores");
+}
+
+export async function rejectUserAction(userId: string) {
+  await assertSuperAdmin();
+
+  // Confirmar que o utilizador é realmente pending antes de eliminar
+  const { data: profile } = await db()
+    .from("profiles")
+    .select("id, approved")
+    .eq("id", userId)
+    .eq("approved", false)
+    .single();
+
+  if (!profile) throw new Error("Utilizador não encontrado ou já aprovado.");
+
+  const { error } = await db().auth.admin.deleteUser(userId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/utilizadores");
 }
 
 // ── Platform stats ────────────────────────────────────────────────────────────

@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { sendNewRegistrationEmail } from "@/lib/email";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -8,11 +9,15 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createSupabaseServerClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { data } = await supabase.auth.exchangeCodeForSession(code);
+
+    // New user confirming email → notify super admins
+    if (next === "/onboarding" && data.user?.email) {
+      await sendNewRegistrationEmail(data.user.email);
+    }
   }
 
-  const { searchParams: sp } = new URL(request.url);
-  const slug = sp.get("slug");
+  const slug = searchParams.get("slug");
   const base = next.startsWith("/") ? next : "/admin";
   const redirectTo = slug ? `${base}?slug=${encodeURIComponent(slug)}` : base;
   return NextResponse.redirect(`${origin}${redirectTo}`);

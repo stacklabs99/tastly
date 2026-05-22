@@ -385,7 +385,7 @@ export default function Home() {
             <span className="text-xs" style={{ color: "#2a2820" }}>Menu digital inteligente</span>
           </div>
           <div className="flex items-center gap-5">
-            <a href="mailto:hello@tastly.app" className="text-xs transition-colors hover:text-dark-300" style={{ color: "#3a3830" }}>hello@tastly.app</a>
+            <a href="mailto:stacklabs99@gmail.com" className="text-xs transition-colors hover:text-dark-300" style={{ color: "#3a3830" }}>stacklabs99@gmail.com</a>
             <Link href="/menu/casa-do-mar" target="_blank" className="text-xs transition-colors hover:text-dark-300" style={{ color: "#3a3830" }}>Demo</Link>
           </div>
           <p className="text-xs" style={{ color: "#2a2820" }}>© {new Date().getFullYear()} Tastly</p>
@@ -592,7 +592,7 @@ function PricingToggle() {
               </ul>
 
               <a
-                href={plan.custom ? "mailto:hello@tastly.pt" : `/auth/signup?plan=${plan.id}`}
+                href={plan.custom ? "mailto:stacklabs99@gmail.com" : `/auth/signup?plan=${plan.id}`}
                 className={`w-full py-3.5 rounded-xl text-sm font-bold text-center transition-all active:scale-[0.98] block ${plan.ctaHoverClass}`}
                 style={plan.ctaStyle}
               >
