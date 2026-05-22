@@ -224,14 +224,16 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
 
       <div
         ref={sheetRef}
-        className={`fixed bottom-0 left-0 right-0 z-50 max-h-[92dvh] flex flex-col rounded-t-3xl bg-[#1a1916] border-t border-white/[0.08] ${
-          isVisible ? "translate-y-0" : "translate-y-full"
-        }`}
+        className={`fixed z-50 flex flex-col bg-[#1a1916]
+          bottom-0 left-0 right-0 max-h-[92dvh] rounded-t-3xl border-t border-white/[0.08]
+          sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[440px] sm:max-h-none sm:rounded-none sm:rounded-l-3xl sm:border-t-0 sm:border-l sm:border-white/[0.08]
+          ${isVisible ? "translate-y-0 sm:translate-x-0" : "translate-y-full sm:translate-y-0 sm:translate-x-full"}
+        `}
         style={{ transition: "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)" }}
       >
-        {/* Drag handle */}
+        {/* Drag handle — mobile only */}
         <div
-          className="flex flex-col items-center pt-3 pb-1 flex-shrink-0 touch-none select-none"
+          className="flex flex-col items-center pt-3 pb-1 flex-shrink-0 touch-none select-none sm:hidden"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
