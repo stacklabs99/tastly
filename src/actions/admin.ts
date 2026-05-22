@@ -41,6 +41,7 @@ export async function updateRestaurantAction(id: string, updates: Partial<Restau
     phone: updates.phone ?? null,
     cuisine_type: updates.cuisine_type ?? null,
     review_url: updates.review_url ?? null,
+    primary_color: updates.primary_color ?? null,
     slug: updates.slug,
   }).eq("id", id);
   if (error) throw new Error(error.message);

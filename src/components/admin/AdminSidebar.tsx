@@ -222,7 +222,7 @@ export function AdminSidebar({ slug, userEmail }: Props) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
-          <div className="h-full" onClick={() => setMobileOpen(false)}>
+          <div className="h-full" onClick={(e) => e.stopPropagation()}>
             <SidebarContent mobile />
           </div>
           <div

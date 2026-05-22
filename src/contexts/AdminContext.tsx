@@ -14,6 +14,7 @@ import {
   deleteCategoryAction,
   updateRestaurantAction,
 } from "@/actions/admin";
+import { showToast } from "@/lib/toast";
 
 type AdminContextType = {
   dishes: Dish[];
@@ -50,7 +51,7 @@ export function AdminProvider({ children, slug }: Props) {
   });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
-  const [useSupabase, setUseSupabase] = useState(false);
+  const [restaurantId, setRestaurantId] = useState("");
 
   useEffect(() => {
     async function load() {
@@ -58,13 +59,13 @@ export function AdminProvider({ children, slug }: Props) {
         const rest = await fetchRestaurantBySlug(slug);
         if (rest) {
           setRestaurant(rest);
+          setRestaurantId(rest.id);
           const [cats, dishs] = await Promise.all([
             fetchCategories(rest.id),
             fetchDishes(rest.id),
           ]);
           setCategories(cats);
           setDishes(dishs);
-          setUseSupabase(true);
         }
       } catch {
         setLoadError(true);
@@ -75,66 +76,143 @@ export function AdminProvider({ children, slug }: Props) {
     load();
   }, [slug]);
 
+  // ── Refetch helpers ──────────────────────────────────────────────────────────
+
+  const refetchDishes = useCallback(async () => {
+    if (!restaurantId) return;
+    try {
+      const dishs = await fetchDishes(restaurantId);
+      setDishes(dishs);
+    } catch { /* silent — state already rolled back */ }
+  }, [restaurantId]);
+
+  const refetchCategories = useCallback(async () => {
+    if (!restaurantId) return;
+    try {
+      const cats = await fetchCategories(restaurantId);
+      setCategories(cats);
+    } catch { /* silent */ }
+  }, [restaurantId]);
+
+  // ── Dishes ───────────────────────────────────────────────────────────────────
+
   const addDish = useCallback(async (dish: Omit<Dish, "id" | "created_at" | "updated_at">) => {
-    if (useSupabase) {
-      const newDish = await addDishAction(dish, slug);
-      setDishes((prev) => [...prev, newDish]);
-      return newDish;
-    }
     const now = new Date().toISOString();
-    const newDish: Dish = { ...dish, id: `dish-${Math.random().toString(36).slice(2, 8)}`, created_at: now, updated_at: now };
-    setDishes((prev) => [...prev, newDish]);
-    return newDish;
-  }, [useSupabase, slug]);
+    const tempId = `tmp-${Math.random().toString(36).slice(2, 8)}`;
+    const optimistic: Dish = { ...dish, id: tempId, created_at: now, updated_at: now };
+    setDishes((prev) => [...prev, optimistic]);
+    try {
+      const newDish = await addDishAction(dish, slug);
+      setDishes((prev) => prev.map((d) => d.id === tempId ? newDish : d));
+      showToast("Prato criado com sucesso", "success");
+      return newDish;
+    } catch (err) {
+      setDishes((prev) => prev.filter((d) => d.id !== tempId));
+      showToast("Erro ao criar prato", "error");
+      throw err;
+    }
+  }, [slug]);
 
   const updateDish = useCallback(async (id: string, updates: Partial<Dish>) => {
-    setDishes((prev) => prev.map((d) => d.id === id ? { ...d, ...updates, updated_at: new Date().toISOString() } : d));
-    if (useSupabase) {
+    let snapshot: Dish | undefined;
+    setDishes((prev) => {
+      snapshot = prev.find((d) => d.id === id);
+      return prev.map((d) => d.id === id ? { ...d, ...updates, updated_at: new Date().toISOString() } : d);
+    });
+    try {
       await updateDishAction(id, updates, slug);
+    } catch {
+      if (snapshot) setDishes((prev) => prev.map((d) => d.id === id ? snapshot! : d));
+      else await refetchDishes();
+      showToast("Erro ao guardar alterações", "error");
     }
-  }, [useSupabase, slug]);
+  }, [slug, refetchDishes]);
 
   const deleteDish = useCallback(async (id: string) => {
-    setDishes((prev) => prev.filter((d) => d.id !== id));
-    if (useSupabase) {
+    let snapshot: Dish | undefined;
+    setDishes((prev) => {
+      snapshot = prev.find((d) => d.id === id);
+      return prev.filter((d) => d.id !== id);
+    });
+    try {
       await deleteDishAction(id, slug);
+      showToast("Prato eliminado", "info");
+    } catch {
+      if (snapshot) setDishes((prev) => [...prev, snapshot!]);
+      showToast("Erro ao eliminar prato", "error");
     }
-  }, [useSupabase, slug]);
+  }, [slug]);
+
+  // ── Categories ───────────────────────────────────────────────────────────────
 
   const addCategory = useCallback(async (cat: Omit<Category, "id" | "created_at">) => {
-    if (useSupabase) {
+    const tempId = `tmp-${Math.random().toString(36).slice(2, 8)}`;
+    const optimistic: Category = { ...cat, id: tempId, created_at: new Date().toISOString() };
+    setCategories((prev) => [...prev, optimistic]);
+    try {
       const newCat = await addCategoryAction(cat, slug);
-      setCategories((prev) => [...prev, newCat]);
+      setCategories((prev) => prev.map((c) => c.id === tempId ? newCat : c));
+      showToast("Categoria criada", "success");
       return newCat;
+    } catch (err) {
+      setCategories((prev) => prev.filter((c) => c.id !== tempId));
+      showToast("Erro ao criar categoria", "error");
+      throw err;
     }
-    const newCat: Category = { ...cat, id: `cat-${Math.random().toString(36).slice(2, 8)}`, created_at: new Date().toISOString() };
-    setCategories((prev) => [...prev, newCat]);
-    return newCat;
-  }, [useSupabase, slug]);
+  }, [slug]);
 
   const updateCategory = useCallback(async (id: string, updates: Partial<Category>) => {
-    setCategories((prev) => prev.map((c) => c.id === id ? { ...c, ...updates } : c));
-    if (useSupabase) {
+    let snapshot: Category | undefined;
+    setCategories((prev) => {
+      snapshot = prev.find((c) => c.id === id);
+      return prev.map((c) => c.id === id ? { ...c, ...updates } : c);
+    });
+    try {
       await updateCategoryAction(id, updates, slug);
+      showToast("Categoria actualizada", "success");
+    } catch {
+      if (snapshot) setCategories((prev) => prev.map((c) => c.id === id ? snapshot! : c));
+      else await refetchCategories();
+      showToast("Erro ao actualizar categoria", "error");
     }
-  }, [useSupabase, slug]);
+  }, [slug, refetchCategories]);
 
   const deleteCategory = useCallback(async (id: string) => {
-    setCategories((prev) => prev.filter((c) => c.id !== id));
-    if (useSupabase) {
+    let snapshot: Category | undefined;
+    setCategories((prev) => {
+      snapshot = prev.find((c) => c.id === id);
+      return prev.filter((c) => c.id !== id);
+    });
+    try {
       await deleteCategoryAction(id, slug);
+      showToast("Categoria eliminada", "info");
+    } catch {
+      if (snapshot) setCategories((prev) => [...prev, snapshot!]);
+      showToast("Erro ao eliminar categoria", "error");
     }
-  }, [useSupabase, slug]);
+  }, [slug]);
+
+  // ── Restaurant ───────────────────────────────────────────────────────────────
 
   const updateRestaurant = useCallback(async (updates: Partial<Restaurant>) => {
+    const snapshot = restaurant;
     setRestaurant((prev) => ({ ...prev, ...updates }));
-    if (useSupabase) {
+    try {
       await updateRestaurantAction(restaurant.id, updates, slug);
+      showToast("Restaurante actualizado", "success");
+    } catch {
+      setRestaurant(snapshot);
+      showToast("Erro ao guardar restaurante", "error");
     }
-  }, [useSupabase, slug, restaurant.id]);
+  }, [slug, restaurant]);
 
   return (
-    <AdminContext.Provider value={{ dishes, categories, restaurant, loading, loadError, addDish, updateDish, deleteDish, addCategory, updateCategory, deleteCategory, updateRestaurant }}>
+    <AdminContext.Provider value={{
+      dishes, categories, restaurant, loading, loadError,
+      addDish, updateDish, deleteDish,
+      addCategory, updateCategory, deleteCategory,
+      updateRestaurant,
+    }}>
       {children}
     </AdminContext.Provider>
   );

@@ -3,23 +3,33 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useAdmin } from "@/contexts/AdminContext";
+import { ImageUpload } from "@/components/admin/ImageUpload";
+import { Check } from "lucide-react";
+
+const PRESET_COLORS = [
+  { label: "Dourado", value: "#e6a81e" },
+  { label: "Verde", value: "#7eb8a4" },
+  { label: "Laranja", value: "#e67e4b" },
+  { label: "Roxo", value: "#9b8ed6" },
+  { label: "Rosa", value: "#e48fb5" },
+  { label: "Azul", value: "#5ba3d9" },
+  { label: "Vermelho", value: "#d95b5b" },
+  { label: "Branco", value: "#e8e8e0" },
+];
 
 export default function RestaurantePage() {
   const { restaurant, updateRestaurant } = useAdmin();
   const [form, setForm] = useState({ ...restaurant });
-  const [saved, setSaved] = useState(false);
-  const [coverError, setCoverError] = useState(false);
+  const [coverUrl, setCoverUrl] = useState(restaurant.cover_url ?? "");
+  const [logoError, setLogoError] = useState(false);
 
   const set = <K extends keyof typeof form>(key: K, val: (typeof form)[K]) => {
     setForm((f) => ({ ...f, [key]: val }));
-    if (key === "cover_url") setCoverError(false);
   };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    updateRestaurant(form);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    updateRestaurant({ ...form, cover_url: coverUrl || undefined });
   };
 
   const inputCls = "w-full rounded-xl px-4 py-2.5 text-sm text-[#e8e8e0] outline-none";
@@ -31,6 +41,8 @@ export default function RestaurantePage() {
     <label className="block text-xs font-semibold uppercase tracking-widest text-[#626250] mb-2">{children}</label>
   );
 
+  const accent = form.primary_color ?? "#e6a81e";
+
   return (
     <div className="p-8">
       <div className="mb-6">
@@ -40,25 +52,109 @@ export default function RestaurantePage() {
 
       <form onSubmit={handleSave} className="space-y-5 max-w-2xl">
 
+        {/* Identidade */}
         <div className={sectionCls} style={sectionStyle}>
           <h2 className="text-xs font-semibold uppercase tracking-widest text-[#626250]">Identidade</h2>
-          <div><Label>Nome</Label>
+          <div>
+            <Label>Nome</Label>
             <input value={form.name} onChange={(e) => set("name", e.target.value)} className={inputCls} style={inputStyle} placeholder="Nome do restaurante" />
           </div>
-          <div><Label>Descrição</Label>
+          <div>
+            <Label>Descrição</Label>
             <textarea rows={2} value={form.description ?? ""} onChange={(e) => set("description", e.target.value)} className={inputCls + " resize-none"} style={inputStyle} placeholder="Breve descrição" />
           </div>
-          <div><Label>Tipo de Cozinha</Label>
+          <div>
+            <Label>Tipo de Cozinha</Label>
             <input value={form.cuisine_type ?? ""} onChange={(e) => set("cuisine_type", e.target.value)} className={inputCls} style={inputStyle} placeholder="ex: Mediterrânica, Portuguesa..." />
           </div>
         </div>
 
+        {/* Cor principal */}
+        <div className={sectionCls} style={sectionStyle}>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-[#626250]">Cor de Destaque</h2>
+            <div
+              className="w-6 h-6 rounded-full border-2"
+              style={{ background: accent, borderColor: "rgba(255,255,255,0.2)" }}
+            />
+          </div>
+          <p className="text-xs text-[#484640]">
+            Define a cor de acento do menu — preços, tabs activos, badges e botões.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {PRESET_COLORS.map(({ label, value }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => set("primary_color", value)}
+                title={label}
+                className="relative w-9 h-9 rounded-full transition-transform active:scale-90 hover:scale-105"
+                style={{ background: value, border: `2px solid ${accent === value ? "white" : "rgba(255,255,255,0.15)"}` }}
+              >
+                {accent === value && (
+                  <Check className="absolute inset-0 m-auto w-4 h-4 text-white drop-shadow" />
+                )}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-xs text-[#626250]">Cor personalizada:</label>
+            <input
+              type="color"
+              value={accent}
+              onChange={(e) => set("primary_color", e.target.value)}
+              className="w-10 h-8 rounded-lg cursor-pointer"
+              style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.1)" }}
+            />
+            <span className="text-xs font-mono text-[#626250]">{accent}</span>
+          </div>
+        </div>
+
+        {/* Imagens */}
+        <div className={sectionCls} style={sectionStyle}>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-[#626250]">Imagens</h2>
+          <div>
+            <Label>Foto de Capa</Label>
+            <ImageUpload value={coverUrl} onChange={setCoverUrl} />
+          </div>
+          <div>
+            <Label>Logótipo (URL)</Label>
+            <input
+              type="url"
+              value={form.logo_url ?? ""}
+              onChange={(e) => { set("logo_url", e.target.value); setLogoError(false); }}
+              className={inputCls}
+              style={inputStyle}
+              placeholder="https://..."
+            />
+            {form.logo_url && !logoError && (
+              <div className="mt-2 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
+                  <Image
+                    src={form.logo_url}
+                    alt="Logo"
+                    width={48}
+                    height={48}
+                    className="object-cover w-full h-full"
+                    onError={() => setLogoError(true)}
+                    unoptimized
+                  />
+                </div>
+                <span className="text-xs text-[#484640]">Pré-visualização do logótipo</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Contacto */}
         <div className={sectionCls} style={sectionStyle}>
           <h2 className="text-xs font-semibold uppercase tracking-widest text-[#626250]">Contacto & Localização</h2>
-          <div><Label>Morada</Label>
+          <div>
+            <Label>Morada</Label>
             <input value={form.address ?? ""} onChange={(e) => set("address", e.target.value)} className={inputCls} style={inputStyle} placeholder="Rua, Número, Cidade" />
           </div>
-          <div><Label>Telefone</Label>
+          <div>
+            <Label>Telefone</Label>
             <input value={form.phone ?? ""} onChange={(e) => set("phone", e.target.value)} className={inputCls} style={inputStyle} placeholder="+351 21 000 0000" />
           </div>
           <div>
@@ -77,25 +173,11 @@ export default function RestaurantePage() {
           </div>
         </div>
 
-        <div className={sectionCls} style={sectionStyle}>
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-[#626250]">Imagens</h2>
-          <div><Label>Foto de Capa</Label>
-            <input type="url" value={form.cover_url ?? ""} onChange={(e) => set("cover_url", e.target.value)} className={inputCls} style={inputStyle} placeholder="https://..." />
-            {form.cover_url && !coverError && (
-              <div className="relative mt-3 rounded-xl overflow-hidden" style={{ aspectRatio: "21/6", background: "#2a2926" }}>
-                <Image src={form.cover_url} alt="Cover" fill className="object-cover" onError={() => setCoverError(true)} unoptimized />
-              </div>
-            )}
-            {coverError && <p className="text-xs text-[#e67e4b] mt-1">URL inválido</p>}
-          </div>
-          <div><Label>Logótipo (URL)</Label>
-            <input type="url" value={form.logo_url ?? ""} onChange={(e) => set("logo_url", e.target.value)} className={inputCls} style={inputStyle} placeholder="https://..." />
-          </div>
-        </div>
-
+        {/* URL do Menu */}
         <div className={sectionCls} style={sectionStyle}>
           <h2 className="text-xs font-semibold uppercase tracking-widest text-[#626250]">URL do Menu</h2>
-          <div><Label>Slug</Label>
+          <div>
+            <Label>Slug</Label>
             <div className="flex items-center rounded-xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
               <span className="px-3 py-2.5 text-sm text-[#484640] flex-shrink-0" style={{ background: "rgba(255,255,255,0.02)" }}>/menu/</span>
               <input
@@ -109,9 +191,14 @@ export default function RestaurantePage() {
           </div>
         </div>
 
+        {/* Save */}
         <div className="pb-8">
-          <button type="submit" className="px-6 py-2.5 rounded-xl text-sm font-semibold text-[#1a1916] transition-all active:scale-95" style={{ background: saved ? "#7eb8a4" : "#e6a81e" }}>
-            {saved ? "✓ Guardado!" : "Guardar Alterações"}
+          <button
+            type="submit"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-[#1a1916] transition-all active:scale-95 hover:brightness-110"
+            style={{ background: "#e6a81e" }}
+          >
+            Guardar Alterações
           </button>
         </div>
       </form>

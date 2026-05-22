@@ -47,8 +47,8 @@ export function MenuHeader({ restaurant }: Props) {
               style={{
                 background: "rgba(26,25,22,0.55)",
                 backdropFilter: "blur(10px)",
-                border: "1px solid rgba(230,168,30,0.4)",
-                color: "#e6a81e",
+                border: "1px solid color-mix(in srgb, var(--accent, #e6a81e) 40%, transparent)",
+                color: "var(--accent, #e6a81e)",
               }}
             >
               {restaurant.cuisine_type}
@@ -102,7 +102,7 @@ export function MenuHeader({ restaurant }: Props) {
               rel="noopener noreferrer"
               className="flex items-center gap-2 min-w-0 active:opacity-70 transition-opacity"
             >
-              <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: "#e6a81e" }} />
+              <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: "var(--accent, #e6a81e)" }} />
               <span className="text-sm truncate" style={{ color: "#b8b8a0" }}>
                 {restaurant.address}
               </span>
@@ -113,7 +113,7 @@ export function MenuHeader({ restaurant }: Props) {
               href={`tel:${restaurant.phone.replace(/\s/g, "")}`}
               className="flex items-center gap-2 flex-shrink-0 active:opacity-70 transition-opacity"
             >
-              <Phone className="w-4 h-4" style={{ color: "#e6a81e" }} />
+              <Phone className="w-4 h-4" style={{ color: "var(--accent, #e6a81e)" }} />
               <span className="text-sm font-medium" style={{ color: "#b8b8a0" }}>
                 {restaurant.phone}
               </span>

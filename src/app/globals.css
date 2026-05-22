@@ -97,6 +97,7 @@ body {
 .animate-fade-in  { animation: fadeIn  0.35s ease-out; }
 .animate-slide-up { animation: slideUp 0.4s  cubic-bezier(0.22, 1, 0.36, 1); }
 .animate-pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
+.animate-toast-in { animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
 
 /* ---- Bottom sheet overlay ---- */
 .sheet-overlay {

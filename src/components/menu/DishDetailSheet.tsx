@@ -161,7 +161,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
     } finally {
       setLoadingAI(false);
     }
-  }, [dish, dishType, loadingAI]);
+  }, [dish, dishType, locale, loadingAI, tr]);
 
   const handleAITabClick = useCallback(() => {
     if (manualRec) {
@@ -272,7 +272,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
               <h2 className="font-serif text-[#f5f5f0] text-2xl font-semibold leading-tight flex-1">
                 {dishName}
               </h2>
-              <span className="text-[#e6a81e] font-bold text-xl whitespace-nowrap">
+              <span className="font-bold text-xl whitespace-nowrap" style={{ color: "var(--accent, #e6a81e)" }}>
                 {dish.price.toFixed(2)} €
               </span>
             </div>
@@ -283,7 +283,8 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
                 {dish.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-xs px-2.5 py-0.5 rounded-full bg-[#e6a81e]/10 text-[#e6a81e] border border-[#e6a81e]/20"
+                    className="text-xs px-2.5 py-0.5 rounded-full"
+                  style={{ background: "color-mix(in srgb, var(--accent, #e6a81e) 10%, transparent)", color: "var(--accent, #e6a81e)", border: "1px solid color-mix(in srgb, var(--accent, #e6a81e) 20%, transparent)" }}
                   >
                     {translateTag(tag, tr)}
                   </span>
@@ -348,31 +349,33 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
               <button
                 onClick={() => setActiveTab("info")}
                 className={`pb-3 mr-6 text-sm font-medium transition-colors relative ${
-                  activeTab === "info" ? "text-[#e6a81e]" : "text-[#7a7a62]"
+                  activeTab === "info" ? "" : "text-[#7a7a62]"
                 }`}
+              style={activeTab === "info" ? { color: "var(--accent, #e6a81e)" } : {}}
               >
                 {tr("tab_info")}
                 {activeTab === "info" && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#e6a81e] rounded-full" />
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ background: "var(--accent, #e6a81e)" }} />
                 )}
               </button>
               <button
                 onClick={handleAITabClick}
                 className={`pb-3 text-sm font-medium transition-colors flex items-center gap-1.5 relative ${
-                  activeTab === "ai" ? "text-[#e6a81e]" : "text-[#7a7a62]"
+                  activeTab === "ai" ? "" : "text-[#7a7a62]"
                 }`}
+              style={activeTab === "ai" ? { color: "var(--accent, #e6a81e)" } : {}}
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 {tr("tab_ai")}
                 {(aiRec || manualRec) && (
                   <span
                     className="ml-1 w-1.5 h-1.5 rounded-full"
-                    style={{ background: manualRec ? "#7eb8a4" : "#e6a81e" }}
+                    style={{ background: manualRec ? "#7eb8a4" : "var(--accent, #e6a81e)" }}
                     title={tr("ai_rec_available")}
                   />
                 )}
                 {activeTab === "ai" && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#e6a81e] rounded-full" />
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ background: "var(--accent, #e6a81e)" }} />
                 )}
               </button>
             </div>

@@ -61,7 +61,7 @@ export function FeaturedCarousel({ dishes, onSelect }: Props) {
               style={{
                 width: i === activeIdx ? 18 : 5,
                 height: 5,
-                background: i === activeIdx ? "#e6a81e" : "rgba(255,255,255,0.15)",
+                background: i === activeIdx ? "var(--accent, #e6a81e)" : "rgba(255,255,255,0.15)",
               }}
             />
           ))}
@@ -117,7 +117,7 @@ function FeaturedCard({ dish, onSelect }: { dish: Dish; onSelect: (d: Dish) => v
       <div className="absolute top-3 right-3">
         <span
           className="text-sm font-bold px-2.5 py-1 rounded-xl"
-          style={{ background: "rgba(26,25,22,0.72)", backdropFilter: "blur(8px)", color: "#e6a81e" }}
+          style={{ background: "rgba(26,25,22,0.72)", backdropFilter: "blur(8px)", color: "var(--accent, #e6a81e)" }}
         >
           {dish.price.toFixed(2)} €
         </span>

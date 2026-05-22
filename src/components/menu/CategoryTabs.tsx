@@ -60,7 +60,7 @@ export function CategoryTabs({ categories, activeId, onChange }: Props) {
                 className="whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 flex-shrink-0"
                 style={
                   isActive
-                    ? { background: "#e6a81e", color: "#1a1916", fontWeight: 600 }
+                    ? { background: "var(--accent, #e6a81e)", color: "#1a1916", fontWeight: 600 }
                     : { color: "#7a7a62" }
                 }
               >

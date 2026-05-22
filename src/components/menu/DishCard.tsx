@@ -66,7 +66,7 @@ export function DishCard({ dish, onClick, delay = 0 }: Props) {
           {showPopular && (
             <div
               className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide"
-              style={{ background: "#e6a81e", color: "#1a1916" }}
+              style={{ background: "var(--accent, #e6a81e)", color: "#1a1916" }}
             >
               ✦ {tr("popular")}
             </div>
@@ -105,7 +105,7 @@ export function DishCard({ dish, onClick, delay = 0 }: Props) {
             </p>
           </div>
           <div className="flex items-center justify-between">
-            <span className="font-bold" style={{ color: "#e6a81e", fontSize: 13 }}>
+            <span className="font-bold" style={{ color: "var(--accent, #e6a81e)", fontSize: 13 }}>
               {dish.price.toFixed(2)} €
             </span>
             {dish.calories != null && dish.calories > 0 && (

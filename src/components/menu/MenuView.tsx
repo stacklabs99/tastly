@@ -62,9 +62,11 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
       ))
     : null;
 
+  const accent = restaurant.primary_color ?? "#e6a81e";
+
   return (
     <LanguageProvider>
-      <div className="min-h-screen" style={{ background: "#1a1916" }}>
+      <div className="min-h-screen" style={{ background: "#1a1916", "--accent": accent } as React.CSSProperties}>
         <MenuHeader restaurant={restaurant} />
         <FeaturedCarousel dishes={dishes} onSelect={setSelectedDish} />
         <CategoryTabs
