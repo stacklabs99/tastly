@@ -399,7 +399,14 @@ export default function Home() {
 function PricingToggle() {
   const [annual, setAnnual] = useState(false);
 
-  const plans = [
+  type Feature = { text: string; soon?: boolean };
+  const plans: {
+    id: string; name: string; desc: string; monthly: number; custom: boolean;
+    accentColor: string; labelColor: string; borderStyle: React.CSSProperties;
+    bgStyle: React.CSSProperties; ctaStyle: React.CSSProperties;
+    ctaHoverClass: string; ctaLabel: string; popular: boolean;
+    features: Feature[];
+  }[] = [
     {
       id: "starter",
       name: "Starter",
@@ -415,14 +422,14 @@ function PricingToggle() {
       ctaLabel: "Começar Starter",
       popular: false,
       features: [
-        "1 restaurante",
-        "Pratos e categorias ilimitados",
-        "IA de maridagem",
-        "4 idiomas (PT · EN · ES · FR)",
-        "QR code PNG para download",
-        "Google Reviews no menu",
-        "Upload de fotos",
-        "Suporte 24h",
+        { text: "1 restaurante" },
+        { text: "Pratos e categorias ilimitados" },
+        { text: "IA de maridagem" },
+        { text: "4 idiomas (PT · EN · ES · FR)" },
+        { text: "QR code PNG para download" },
+        { text: "Google Reviews no menu" },
+        { text: "Upload de fotos" },
+        { text: "Suporte por email" },
       ],
     },
     {
@@ -443,13 +450,12 @@ function PricingToggle() {
       ctaLabel: "Começar Pro",
       popular: true,
       features: [
-        "Até 3 restaurantes",
-        "Tudo do Starter",
-        "IA de maridagem ilimitada",
-        "Maridagens manuais personalizadas",
-        "Múltiplos utilizadores admin",
-        "Analytics de pratos",
-        "Suporte prioritário",
+        { text: "Até 3 restaurantes" },
+        { text: "Tudo do Starter" },
+        { text: "Maridagens manuais personalizadas" },
+        { text: "Suporte prioritário" },
+        { text: "Múltiplos utilizadores admin", soon: true },
+        { text: "Analytics de pratos", soon: true },
       ],
     },
     {
@@ -467,14 +473,13 @@ function PricingToggle() {
       ctaLabel: "Falar connosco",
       popular: false,
       features: [
-        "Restaurantes ilimitados",
-        "Tudo do Pro",
-        "Sem «Powered by Tastly»",
-        "Dashboard multi-restaurante",
-        "Gestor de conta dedicado",
-        "Onboarding personalizado",
-        "SLA garantido",
-        "Faturação consolidada",
+        { text: "Restaurantes ilimitados" },
+        { text: "Tudo do Pro" },
+        { text: "Gestor de conta dedicado" },
+        { text: "Onboarding personalizado" },
+        { text: "Sem «Powered by Tastly»", soon: true },
+        { text: "Dashboard multi-restaurante", soon: true },
+        { text: "Faturação consolidada", soon: true },
       ],
     },
   ];
@@ -570,10 +575,18 @@ function PricingToggle() {
               )}
 
               <ul className="space-y-3 flex-1 mb-8">
-                {plan.features.map((text) => (
-                  <li key={text} className="flex items-start gap-2.5 text-sm" style={{ color: plan.popular ? "#96967f" : "#7a7a62" }}>
-                    <Check className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: plan.accentColor }} />
-                    {text}
+                {plan.features.map((f) => (
+                  <li key={f.text} className="flex items-start gap-2.5 text-sm" style={{ color: plan.popular ? "#96967f" : "#7a7a62" }}>
+                    <Check className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: f.soon ? "#3a3830" : plan.accentColor }} />
+                    <span style={{ color: f.soon ? "#484640" : undefined }}>{f.text}</span>
+                    {f.soon && (
+                      <span
+                        className="ml-auto flex-shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                        style={{ background: "rgba(255,255,255,0.05)", color: "#484640" }}
+                      >
+                        Em breve
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>
