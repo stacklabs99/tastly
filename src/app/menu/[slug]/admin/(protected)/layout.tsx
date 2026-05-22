@@ -20,6 +20,19 @@ export default async function ProtectedAdminLayout({ children, params }: Props) 
 
   const restaurant = await getRestaurantBySlug(slug);
   if (!restaurant) notFound();
+  if (!restaurant.is_active) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center px-4" style={{ background: "#0f0f0d" }}>
+        <div className="text-center max-w-sm">
+          <div className="text-4xl mb-4">🔒</div>
+          <h1 className="font-serif text-xl font-bold mb-2" style={{ color: "#f5f5f0" }}>Acesso Suspenso</h1>
+          <p className="text-sm leading-relaxed" style={{ color: "#626250" }}>
+            Este restaurante foi temporariamente suspenso pela plataforma Tastly. Contacta o suporte para mais informações.
+          </p>
+        </div>
+      </div>
+    );
+  }
   if (restaurant.owner_id !== user.id) redirect(`/menu/${slug}/admin/login`);
 
   return (

@@ -11,7 +11,7 @@ type Props = {
 
 async function getMenuData(slug: string) {
   const restaurant = await getRestaurantBySlug(slug);
-  if (!restaurant) return null;
+  if (!restaurant || !restaurant.is_active) return null;
   const [categories, dishes] = await Promise.all([
     getCategoriesForRestaurant(restaurant.id),
     getDishesForRestaurant(restaurant.id),
