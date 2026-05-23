@@ -18,9 +18,13 @@ export default async function ProtectedAdminLayout({ children, params }: Props) 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/menu/${slug}/admin/login`);
 
+  const superAdmins = (process.env.SUPER_ADMIN_EMAILS ?? process.env.SUPER_ADMIN_EMAIL ?? "")
+    .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+  const isSuperAdmin = superAdmins.includes((user.email ?? "").toLowerCase());
+
   const restaurant = await getRestaurantBySlug(slug);
   if (!restaurant) notFound();
-  if (!restaurant.is_active) {
+  if (!restaurant.is_active && !isSuperAdmin) {
     return (
       <div className="min-h-dvh flex items-center justify-center px-4" style={{ background: "#0f0f0d" }}>
         <div className="text-center max-w-sm">
@@ -33,8 +37,7 @@ export default async function ProtectedAdminLayout({ children, params }: Props) 
       </div>
     );
   }
-  // Don't redirect to login — authenticated non-owners would loop with the proxy
-  if (restaurant.owner_id !== user.id) redirect(`/menu/${slug}`);
+  if (!isSuperAdmin && restaurant.owner_id !== user.id) redirect(`/menu/${slug}`);
 
   return (
     <AdminProvider slug={slug}>
