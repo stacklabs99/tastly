@@ -58,15 +58,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Authenticated on restaurant login → go to admin
-  if (user && isLoginPage && !isSignupPage && pathname !== "/auth/login") {
-    const slugMatch = pathname.match(/\/menu\/([^/]+)\/admin/);
-    const slug = slugMatch?.[1] ?? "";
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = `/menu/${slug}/admin`;
-    return NextResponse.redirect(redirectUrl);
-  }
-
   return supabaseResponse;
 }
 
