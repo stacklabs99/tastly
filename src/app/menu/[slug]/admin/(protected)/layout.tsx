@@ -33,7 +33,8 @@ export default async function ProtectedAdminLayout({ children, params }: Props) 
       </div>
     );
   }
-  if (restaurant.owner_id !== user.id) redirect(`/menu/${slug}/admin/login`);
+  // Don't redirect to login — authenticated non-owners would loop with the proxy
+  if (restaurant.owner_id !== user.id) redirect(`/menu/${slug}`);
 
   return (
     <AdminProvider slug={slug}>
