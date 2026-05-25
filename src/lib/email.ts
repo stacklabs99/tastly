@@ -89,6 +89,76 @@ export async function sendNewRegistrationEmail(userEmail: string): Promise<void>
   }).catch(() => null);
 }
 
+// ── Trial a expirar ──────────────────────────────────────────────────────────
+
+export async function sendTrialExpiringEmail(userEmail: string, restaurantSlug: string, daysLeft: number): Promise<void> {
+  if (!process.env.RESEND_API_KEY) return;
+
+  const planoUrl = `${SITE_URL}/menu/${encodeURIComponent(restaurantSlug)}/admin/plano`;
+  const safeEmail = escapeHtml(userEmail);
+  const urgent = daysLeft <= 1;
+
+  const html = wrap(`
+    <h2 style="margin:0 0 8px;font-size:20px;color:#1a1916;">
+      ${urgent ? "O teu trial expira amanhã!" : `${daysLeft} dias para o trial expirar`}
+    </h2>
+    <p style="margin:0 0 24px;font-size:14px;color:#626250;line-height:1.6;">
+      Olá, <strong>${safeEmail}</strong>.<br>
+      ${urgent
+        ? "O teu trial Tastly expira <strong>amanhã</strong>. Após a expiração, o acesso ao backoffice ficará bloqueado até subscreveres o plano Pro."
+        : `Faltam apenas <strong>${daysLeft} dias</strong> para o teu trial Tastly expirar. Subscreve o plano Pro para manter o acesso ininterrupto ao backoffice.`
+      }
+    </p>
+    <a href="${planoUrl}" style="display:inline-block;background:#c49516;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 24px;border-radius:10px;">
+      Ver planos e fazer upgrade
+    </a>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f8f4;border-radius:10px;padding:16px 20px;margin-top:28px;">
+      <tr><td style="font-size:13px;color:#626250;line-height:1.7;">
+        <strong style="color:#1a1916;">Plano Pro inclui:</strong><br>
+        Menu digital ilimitado · Traduções automáticas · IA de maridagem · QR Code personalizado · Suporte prioritário
+      </td></tr>
+    </table>
+  `);
+
+  await resend.emails.send({
+    from: FROM,
+    to: userEmail,
+    subject: safeSubject(urgent
+      ? "⚠️ O teu trial Tastly expira amanhã"
+      : `⏳ ${daysLeft} dias para o teu trial Tastly expirar`),
+    html,
+  }).catch(() => null);
+}
+
+// ── Pagamento falhado ─────────────────────────────────────────────────────────
+
+export async function sendPaymentFailedEmail(userEmail: string, restaurantSlug: string): Promise<void> {
+  if (!process.env.RESEND_API_KEY) return;
+
+  const planoUrl = `${SITE_URL}/menu/${encodeURIComponent(restaurantSlug)}/admin/plano`;
+
+  const html = wrap(`
+    <h2 style="margin:0 0 8px;font-size:20px;color:#c0392b;">Problema com o teu pagamento</h2>
+    <p style="margin:0 0 24px;font-size:14px;color:#626250;line-height:1.6;">
+      Não foi possível processar o pagamento da tua subscrição Tastly.<br>
+      Actualiza o método de pagamento para evitar a interrupção do serviço.
+    </p>
+    <a href="${planoUrl}" style="display:inline-block;background:#c49516;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 24px;border-radius:10px;">
+      Actualizar método de pagamento
+    </a>
+    <p style="margin:24px 0 0;font-size:12px;color:#b0a898;">
+      Se o pagamento não for actualizado, o acesso ao backoffice poderá ser suspenso.
+    </p>
+  `);
+
+  await resend.emails.send({
+    from: FROM,
+    to: userEmail,
+    subject: "❌ Problema com o pagamento da tua subscrição Tastly",
+    html,
+  }).catch(() => null);
+}
+
 // ── Notificar utilizador quando aprovado ──────────────────────────────────────
 
 export async function sendAccountApprovedEmail(userEmail: string): Promise<void> {

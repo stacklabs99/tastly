@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createSupabaseServiceClient } from "@/lib/supabase";
+import { sendPaymentFailedEmail } from "@/lib/email";
 import type Stripe from "stripe";
 
 function db() {
@@ -55,6 +56,20 @@ export async function POST(req: NextRequest) {
           .from("restaurants")
           .update({ is_active: false })
           .eq("id", rid);
+
+        // Notify the restaurant owner
+        const { data: rest } = await db()
+          .from("restaurants")
+          .select("owner_id, slug")
+          .eq("id", rid)
+          .single();
+        if (rest) {
+          const { data: profile } = await createSupabaseServiceClient()
+            .auth.admin.getUserById(rest.owner_id);
+          if (profile.user?.email) {
+            await sendPaymentFailedEmail(profile.user.email, rest.slug);
+          }
+        }
       }
       break;
     }
