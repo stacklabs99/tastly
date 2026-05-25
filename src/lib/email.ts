@@ -1,6 +1,14 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy — the Resend constructor throws on a missing key, which would crash at
+// module load (and break the build) for any route that imports this file.
+// Every send is already guarded by `if (!RESEND_API_KEY) return`, so this is
+// only ever called when a key is present.
+let _resend: Resend | null = null;
+function resend(): Resend {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
+  return _resend;
+}
 
 const FROM = "Tastly <noreply@stacklabs.pt>";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://tastly.stacklabs.pt";
@@ -81,7 +89,7 @@ export async function sendNewRegistrationEmail(userEmail: string): Promise<void>
     </p>
   `);
 
-  await resend.emails.send({
+  await resend().emails.send({
     from: FROM,
     to,
     subject: safeSubject(`Novo registo pendente — ${userEmail}`),
@@ -120,7 +128,7 @@ export async function sendTrialExpiringEmail(userEmail: string, restaurantSlug: 
     </table>
   `);
 
-  await resend.emails.send({
+  await resend().emails.send({
     from: FROM,
     to: userEmail,
     subject: safeSubject(urgent
@@ -151,7 +159,7 @@ export async function sendPaymentFailedEmail(userEmail: string, restaurantSlug: 
     </p>
   `);
 
-  await resend.emails.send({
+  await resend().emails.send({
     from: FROM,
     to: userEmail,
     subject: "❌ Problema com o pagamento da tua subscrição Tastly",
@@ -181,7 +189,7 @@ export async function sendAccountApprovedEmail(userEmail: string): Promise<void>
     </p>
   `);
 
-  await resend.emails.send({
+  await resend().emails.send({
     from: FROM,
     to: userEmail,
     subject: "A tua conta Tastly foi aprovada 🎉",

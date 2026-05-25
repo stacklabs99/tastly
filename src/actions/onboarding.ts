@@ -65,6 +65,8 @@ export async function createRestaurantAction(input: {
 
   const trialEndsAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString();
 
+  // Always start on the trial (starter). Paid plans are only granted by the
+  // Stripe webhook after a successful payment — never self-assigned at onboarding.
   const { data, error } = await db()
     .from("restaurants")
     .insert({
@@ -73,7 +75,7 @@ export async function createRestaurantAction(input: {
       cuisine_type: input.cuisine_type?.trim() || null,
       owner_id: user.id,
       is_active: true,
-      plan: input.plan,
+      plan: "starter",
       trial_ends_at: trialEndsAt,
     })
     .select("slug")

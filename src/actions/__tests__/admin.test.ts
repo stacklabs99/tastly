@@ -252,4 +252,53 @@ describe("updateDishAction", () => {
 
     expect(mockAutoTranslateDish).not.toHaveBeenCalled();
   });
+
+  // ── Regression: partial updates must not wipe untouched columns ───────────────
+
+  it("toggling is_featured does NOT touch image_url, translations or manual_pairings", async () => {
+    setupOwnership();
+
+    const { updateDishAction } = await import("@/actions/admin");
+    await updateDishAction("dish-1", { is_featured: true }, "casa-do-mar");
+
+    const fields = (_currentChain.update as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(fields).toHaveProperty("is_featured", true);
+    expect(fields).not.toHaveProperty("image_url");
+    expect(fields).not.toHaveProperty("translations");
+    expect(fields).not.toHaveProperty("manual_pairings");
+    expect(fields).not.toHaveProperty("name");
+  });
+
+  it("toggling is_available only writes is_available and updated_at", async () => {
+    setupOwnership();
+
+    const { updateDishAction } = await import("@/actions/admin");
+    await updateDishAction("dish-1", { is_available: false }, "casa-do-mar");
+
+    const fields = (_currentChain.update as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(Object.keys(fields).sort()).toEqual(["is_available", "updated_at"]);
+  });
+
+  it("updating only price preserves translations (does not set them to null)", async () => {
+    setupOwnership();
+
+    const { updateDishAction } = await import("@/actions/admin");
+    await updateDishAction("dish-1", { price: 25 }, "casa-do-mar");
+
+    const fields = (_currentChain.update as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(fields).toHaveProperty("price", 25);
+    expect(fields).not.toHaveProperty("translations");
+    expect(fields).not.toHaveProperty("image_url");
+  });
+
+  it("clearing image_url explicitly still works (passes null through)", async () => {
+    setupOwnership();
+
+    const { updateDishAction } = await import("@/actions/admin");
+    await updateDishAction("dish-1", { image_url: undefined }, "casa-do-mar");
+
+    // image_url was provided as a key in updates → safeUrl(undefined) → null
+    const fields = (_currentChain.update as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(fields).toHaveProperty("image_url", null);
+  });
 });

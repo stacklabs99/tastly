@@ -134,11 +134,13 @@ export async function updateCategoryAction(id: string, updates: Partial<Category
   const { data: cat } = await db().from("categories").select("restaurant_id").eq("id", id).single();
   if (!cat || cat.restaurant_id !== restaurantId) throw new Error("Acesso negado");
 
-  const { error } = await db().from("categories").update({
-    name: updates.name,
-    description: updates.description ?? null,
-    position: updates.position,
-  }).eq("id", id);
+  // Only write keys present in `updates` so partial updates don't wipe others.
+  const fields: Record<string, unknown> = {};
+  if ("name" in updates) fields.name = updates.name;
+  if ("description" in updates) fields.description = updates.description ?? null;
+  if ("position" in updates) fields.position = updates.position;
+
+  const { error } = await db().from("categories").update(fields).eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath(`/menu/${slug}`);
 }
@@ -256,35 +258,40 @@ export async function updateDishAction(id: string, updates: Partial<Dish>, slug:
   const parsed = DishUpdateSchema.safeParse(updates);
   if (!parsed.success) throw new Error(parsed.error.issues[0].message);
 
-  // Retranslate whenever name or description is updated (keeps translations in sync)
-  let translations = updates.translations ?? null;
+  // Only write fields whose key is present in `updates`, so partial updates
+  // (e.g. toggling availability from the list) don't wipe image, pairings or
+  // translations. Key presence — not value — is what matters: the edit form
+  // always sends every key (so it can clear a field with undefined/null),
+  // while a toggle sends just the one key it changed.
+  const has = (k: keyof Dish) => k in updates;
+  const fields: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (has("category_id")) fields.category_id = updates.category_id;
+  if (has("name")) fields.name = updates.name;
+  if (has("description")) fields.description = updates.description;
+  if (has("price")) fields.price = updates.price;
+  if (has("image_url")) fields.image_url = safeUrl(updates.image_url);
+  if (has("allergens")) fields.allergens = updates.allergens;
+  if (has("calories")) fields.calories = updates.calories ?? null;
+  if (has("proteins")) fields.proteins = updates.proteins ?? null;
+  if (has("carbs")) fields.carbs = updates.carbs ?? null;
+  if (has("fat")) fields.fat = updates.fat ?? null;
+  if (has("is_available")) fields.is_available = updates.is_available;
+  if (has("is_featured")) fields.is_featured = updates.is_featured;
+  if (has("tags")) fields.tags = updates.tags;
+  if (has("position")) fields.position = updates.position;
+  if (has("manual_pairings")) fields.manual_pairings = updates.manual_pairings ?? null;
+  if (has("translations")) fields.translations = updates.translations;
+
+  // Retranslate whenever name and description are both provided (keeps translations in sync)
   if (updates.name && updates.description) {
     const { data: rest } = await db().from("dishes").select("restaurant_id").eq("id", id).single();
     if (rest && await checkAiUsage(rest.restaurant_id)) {
       const auto = await autoTranslateDish(updates.name, updates.description);
-      if (auto) { translations = auto; await incrementAiUsage(rest.restaurant_id); }
+      if (auto) { fields.translations = auto; await incrementAiUsage(rest.restaurant_id); }
     }
   }
 
-  const { error } = await db().from("dishes").update({
-    category_id: updates.category_id,
-    name: updates.name,
-    description: updates.description,
-    price: updates.price,
-    image_url: safeUrl(updates.image_url),
-    allergens: updates.allergens,
-    calories: updates.calories ?? null,
-    proteins: updates.proteins ?? null,
-    carbs: updates.carbs ?? null,
-    fat: updates.fat ?? null,
-    is_available: updates.is_available,
-    is_featured: updates.is_featured,
-    tags: updates.tags,
-    position: updates.position,
-    manual_pairings: updates.manual_pairings ?? null,
-    translations,
-    updated_at: new Date().toISOString(),
-  }).eq("id", id);
+  const { error } = await db().from("dishes").update(fields).eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath(`/menu/${slug}`);
 }

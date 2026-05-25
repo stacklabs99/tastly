@@ -3,6 +3,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./lib/supabase";
 
 export async function proxy(request: NextRequest) {
+  // Expose the pathname to server components (used by the admin layout for
+  // trial enforcement — it must know the current path to avoid redirect loops).
+  request.headers.set("x-pathname", request.nextUrl.pathname);
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {

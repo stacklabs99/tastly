@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAdmin } from "@/contexts/AdminContext";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -18,10 +18,18 @@ const PRESET_COLORS = [
 ];
 
 export default function RestaurantePage() {
-  const { restaurant, updateRestaurant } = useAdmin();
+  const { restaurant, updateRestaurant, loading } = useAdmin();
   const [form, setForm] = useState({ ...restaurant });
   const [coverUrl, setCoverUrl] = useState(restaurant.cover_url ?? "");
   const [logoError, setLogoError] = useState(false);
+
+  // Re-sync the form once the restaurant finishes loading (context starts empty).
+  // Keyed on id so it only runs when real data arrives, not on every edit.
+  useEffect(() => {
+    setForm({ ...restaurant });
+    setCoverUrl(restaurant.cover_url ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurant.id]);
 
   const set = <K extends keyof typeof form>(key: K, val: (typeof form)[K]) => {
     setForm((f) => ({ ...f, [key]: val }));
@@ -42,6 +50,18 @@ export default function RestaurantePage() {
   );
 
   const accent = form.primary_color ?? "#e6a81e";
+
+  if (loading) {
+    return (
+      <div className="p-8 max-w-2xl">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 w-48 rounded-xl" style={{ background: "rgba(255,255,255,0.05)" }} />
+          <div className="h-40 rounded-2xl" style={{ background: "rgba(255,255,255,0.03)" }} />
+          <div className="h-40 rounded-2xl" style={{ background: "rgba(255,255,255,0.03)" }} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
