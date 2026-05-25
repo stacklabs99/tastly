@@ -24,10 +24,21 @@ vi.mock("@/lib/supabase", () => ({
 
 // ── Chain factory ─────────────────────────────────────────────────────────────
 
-function buildChain() {
+type MockChain = {
+  select: ReturnType<typeof vi.fn>;
+  insert: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+  delete: ReturnType<typeof vi.fn>;
+  eq: ReturnType<typeof vi.fn>;
+  order: ReturnType<typeof vi.fn>;
+  single: ReturnType<typeof vi.fn>;
+  then: (resolve: (v: unknown) => void) => void;
+};
+
+function buildChain(): MockChain {
   // The chain is thenable so `await chain.update(...).eq(...)` resolves to
   // { data: null, error: null } without needing a separate awaitable at the end.
-  const c: Record<string, unknown> & { then: (r: (v: unknown) => void) => void } = {
+  const c: MockChain = {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
@@ -35,15 +46,14 @@ function buildChain() {
     eq: vi.fn(),
     order: vi.fn(),
     single: vi.fn().mockResolvedValue({ data: null, error: null }),
-    then: (resolve: (v: unknown) => void) => resolve({ data: null, error: null }),
+    then: (resolve) => resolve({ data: null, error: null }),
   };
 
   // Every fn except single & then returns the chain itself (fluent API)
-  for (const key of Object.keys(c)) {
-    if (key !== "single" && key !== "then") {
-      (c[key] as ReturnType<typeof vi.fn>).mockReturnValue(c);
-    }
-  }
+  (["select", "insert", "update", "delete", "eq", "order"] as const).forEach((k) => {
+    c[k].mockReturnValue(c);
+  });
+
   return c;
 }
 
