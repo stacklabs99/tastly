@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   LogOut,
+  CreditCard,
 } from "lucide-react";
 import { signOutAction } from "@/actions/auth";
 
@@ -35,6 +36,7 @@ export function AdminSidebar({ slug, userEmail }: Props) {
     { href: `${base}/categorias`, label: "Categorias", icon: Layers },
     { href: `${base}/restaurante`, label: "Restaurante", icon: Store },
     { href: `${base}/qrcode`, label: "QR Code", icon: QrCode },
+    { href: `${base}/plano`, label: "Plano", icon: CreditCard },
   ];
 
   const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => (
@@ -147,18 +149,20 @@ export function AdminSidebar({ slug, userEmail }: Props) {
         const expired = daysLeft <= 0;
         if (!expired && daysLeft > 15) return null;
         return (
-          <div
-            className="mx-3 mb-2 px-3 py-2.5 rounded-xl text-xs"
+          <Link
+            href={`${base}/plano`}
+            onClick={() => mobile && setMobileOpen(false)}
+            className="mx-3 mb-2 px-3 py-2.5 rounded-xl text-xs block transition-all hover:brightness-110"
             style={expired
               ? { background: "rgba(230,126,75,0.08)", border: "1px solid rgba(230,126,75,0.2)", color: "#e67e4b" }
               : { background: "rgba(230,168,30,0.08)", border: "1px solid rgba(230,168,30,0.2)", color: "#e6a81e" }
             }
           >
             {expired
-              ? <><strong>Trial expirado.</strong> Contacta-nos para continuar.</>
-              : <><strong>{daysLeft} dia{daysLeft !== 1 ? "s" : ""}</strong> de trial restantes.</>
+              ? <><strong>Trial expirado.</strong> Clica para fazer upgrade.</>
+              : <><strong>{daysLeft} dia{daysLeft !== 1 ? "s" : ""}</strong> de trial · Fazer upgrade</>
             }
-          </div>
+          </Link>
         );
       })()}
 
