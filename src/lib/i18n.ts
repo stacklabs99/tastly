@@ -68,6 +68,7 @@ export type TKeys = {
   cat_desserts: string;
   cat_wines: string;
   cat_beverages: string;
+  cat_palate: string;
   // Dish count
   dish_one: string;
   dish_many: string;
@@ -186,6 +187,7 @@ const translations: Record<Locale, TKeys> = {
     cat_desserts: "Sobremesas",
     cat_wines: "Vinhos",
     cat_beverages: "Bebidas",
+    cat_palate: "Corta-Sabores",
     dish_one: "prato",
     dish_many: "pratos",
     tag_popular: "popular",
@@ -208,7 +210,7 @@ const translations: Record<Locale, TKeys> = {
     allergen_amendoins: "Amendoins",
     allergen_soja: "Soja",
     allergen_leite: "Leite",
-    allergen_frutos_casca: "Frutos de Casca",
+    allergen_frutos_casca: "Frutos de Casca Rija",
     allergen_aipo: "Aipo",
     allergen_mostarda: "Mostarda",
     allergen_sesamo: "Sésamo",
@@ -289,6 +291,7 @@ const translations: Record<Locale, TKeys> = {
     cat_desserts: "Desserts",
     cat_wines: "Wines",
     cat_beverages: "Beverages",
+    cat_palate: "Palate Cleansers",
     dish_one: "dish",
     dish_many: "dishes",
     tag_popular: "popular",
@@ -392,6 +395,7 @@ const translations: Record<Locale, TKeys> = {
     cat_desserts: "Postres",
     cat_wines: "Vinos",
     cat_beverages: "Bebidas",
+    cat_palate: "Limpiadores de Paladar",
     dish_one: "plato",
     dish_many: "platos",
     tag_popular: "popular",
@@ -495,6 +499,7 @@ const translations: Record<Locale, TKeys> = {
     cat_desserts: "Desserts",
     cat_wines: "Vins",
     cat_beverages: "Boissons",
+    cat_palate: "Trous Normands",
     dish_one: "plat",
     dish_many: "plats",
     tag_popular: "populaire",
@@ -512,7 +517,7 @@ const translations: Record<Locale, TKeys> = {
     tag_cafe: "café",
     allergen_gluten: "Gluten",
     allergen_crustaceos: "Crustacés",
-    allergen_ovos: "Oeufs",
+    allergen_ovos: "Œufs",
     allergen_peixe: "Poisson",
     allergen_amendoins: "Arachides",
     allergen_soja: "Soja",
@@ -578,5 +583,6 @@ export function translateCategoryName(name: string, tr: (key: keyof TKeys) => st
   if (n.includes("sobremesa") || n.includes("dessert") || n.includes("postre")) return tr("cat_desserts");
   if (n.includes("vinho") || n.includes("wine") || n.includes("vino") || n.includes("vin")) return tr("cat_wines");
   if (n.includes("bebida") || n.includes("drink") || n.includes("beverage") || n.includes("boisson")) return tr("cat_beverages");
+  if (n.includes("corta")) return tr("cat_palate");
   return name;
 }

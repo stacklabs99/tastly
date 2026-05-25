@@ -1,6 +1,7 @@
 import { getPlatformStats } from "@/actions/superadmin";
 import { Store, UtensilsCrossed, CheckCircle, XCircle, Users, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { BackfillTranslationsButton } from "./BackfillTranslationsButton";
 
 export const dynamic = "force-dynamic";
 
@@ -107,6 +108,7 @@ export default async function SuperAdminDashboard() {
             <Store className="w-4 h-4" />
             Gerir Restaurantes
           </Link>
+          <BackfillTranslationsButton />
         </div>
       </div>
     </div>

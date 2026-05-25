@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServiceClient } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { sendAccountApprovedEmail } from "@/lib/email";
+import { autoTranslateDish, needsTranslation } from "@/lib/ai-translate";
 
 function db() {
   return createSupabaseServiceClient();
@@ -305,4 +306,31 @@ export async function getPlatformStats() {
     newThisMonth: newThisMonth ?? 0,
     totalUsers: usersData?.users.length ?? 0,
   };
+}
+
+export async function backfillDishTranslations(): Promise<{ done: number; skipped: number; failed: number }> {
+  await assertSuperAdmin();
+
+  const { data: dishes } = await db()
+    .from("dishes")
+    .select("id, name, description, translations");
+
+  if (!dishes) return { done: 0, skipped: 0, failed: 0 };
+
+  let done = 0, skipped = 0, failed = 0;
+
+  for (const dish of dishes) {
+    if (!needsTranslation((dish.translations as Record<string, { name?: string; description?: string }> | undefined))) {
+      skipped++;
+      continue;
+    }
+    const auto = await autoTranslateDish(dish.name, dish.description);
+    if (!auto) { failed++; continue; }
+
+    const merged = { ...(dish.translations as object ?? {}), ...auto };
+    const { error } = await db().from("dishes").update({ translations: merged }).eq("id", dish.id);
+    if (error) { failed++; } else { done++; }
+  }
+
+  return { done, skipped, failed };
 }

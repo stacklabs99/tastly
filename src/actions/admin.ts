@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServiceClient } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import type { Dish, Category, Restaurant, ManualPairings } from "@/types";
+import { autoTranslateDish, needsTranslation } from "@/lib/ai-translate";
 
 function db() {
   return createSupabaseServiceClient();
@@ -178,6 +179,12 @@ export async function addDishAction(dish: Omit<Dish, "id" | "created_at" | "upda
   const restaurantId = await assertOwner(slug);
   if (dish.restaurant_id !== restaurantId) throw new Error("Acesso negado");
 
+  let translations = dish.translations ?? null;
+  if (needsTranslation(translations ?? undefined)) {
+    const auto = await autoTranslateDish(dish.name, dish.description);
+    if (auto) translations = { ...translations, ...auto };
+  }
+
   const { data, error } = await db().from("dishes").insert({
     restaurant_id: restaurantId,
     category_id: dish.category_id,
@@ -195,7 +202,7 @@ export async function addDishAction(dish: Omit<Dish, "id" | "created_at" | "upda
     tags: dish.tags,
     position: dish.position,
     manual_pairings: dish.manual_pairings ?? null,
-    translations: dish.translations ?? null,
+    translations,
   }).select().single();
   if (error || !data) throw new Error(error?.message ?? "Failed to create dish");
   revalidatePath(`/menu/${slug}`);
@@ -231,6 +238,13 @@ async function assertDishOwnership(dishId: string, slug: string) {
 
 export async function updateDishAction(id: string, updates: Partial<Dish>, slug: string) {
   await assertDishOwnership(id, slug);
+
+  let translations = updates.translations ?? null;
+  if (updates.name && updates.description && needsTranslation(translations ?? undefined)) {
+    const auto = await autoTranslateDish(updates.name, updates.description);
+    if (auto) translations = { ...translations, ...auto };
+  }
+
   const { error } = await db().from("dishes").update({
     category_id: updates.category_id,
     name: updates.name,
@@ -247,7 +261,7 @@ export async function updateDishAction(id: string, updates: Partial<Dish>, slug:
     tags: updates.tags,
     position: updates.position,
     manual_pairings: updates.manual_pairings ?? null,
-    translations: updates.translations ?? null,
+    translations,
     updated_at: new Date().toISOString(),
   }).eq("id", id);
   if (error) throw new Error(error.message);
