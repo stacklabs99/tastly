@@ -239,10 +239,11 @@ async function assertDishOwnership(dishId: string, slug: string) {
 export async function updateDishAction(id: string, updates: Partial<Dish>, slug: string) {
   await assertDishOwnership(id, slug);
 
+  // Retranslate whenever name or description is updated (keeps translations in sync)
   let translations = updates.translations ?? null;
-  if (updates.name && updates.description && needsTranslation(translations ?? undefined)) {
+  if (updates.name && updates.description) {
     const auto = await autoTranslateDish(updates.name, updates.description);
-    if (auto) translations = { ...translations, ...auto };
+    if (auto) translations = auto;
   }
 
   const { error } = await db().from("dishes").update({
