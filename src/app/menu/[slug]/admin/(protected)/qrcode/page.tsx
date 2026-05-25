@@ -14,9 +14,7 @@ export default function QrCodePage() {
   const { restaurant } = useAdmin();
   const [size, setSize] = useState(400);
 
-  const menuUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/menu/${restaurant.slug}`
-    : `https://tastly.app/menu/${restaurant.slug}`;
+  const menuUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/menu/${restaurant.slug}`;
 
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&bgcolor=1a1916&color=e6a81e&margin=20&data=${encodeURIComponent(menuUrl)}`;
 
