@@ -1,6 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Lazy — the Anthropic constructor throws on a missing key, which would crash
+// at module load for any route importing this file. Only built when a key exists.
+let _client: Anthropic | null = null;
+function client(): Anthropic {
+  if (!_client) _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  return _client;
+}
 
 type DishTranslations = Record<"en" | "es" | "fr", { name: string; description: string }>;
 
@@ -29,7 +35,7 @@ Respond with ONLY valid JSON in this exact format:
 }`;
 
   try {
-    const msg = await client.messages.create({
+    const msg = await client().messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 512,
       messages: [{ role: "user", content: prompt }],

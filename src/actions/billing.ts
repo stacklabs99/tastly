@@ -2,7 +2,7 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseServiceClient } from "@/lib/supabase";
-import { stripe, STRIPE_PRICES, type BillingInterval } from "@/lib/stripe";
+import { getStripe, STRIPE_PRICES, type BillingInterval } from "@/lib/stripe";
 
 function db() {
   return createSupabaseServiceClient();
@@ -24,6 +24,7 @@ export async function createCheckoutSession(restaurantId: string, slug: string, 
 
   if (!restaurant) throw new Error("Acesso negado");
 
+  const stripe = getStripe();
   let customerId = restaurant.stripe_customer_id as string | null;
 
   if (!customerId) {
@@ -63,7 +64,7 @@ export async function createBillingPortalSession(restaurantId: string, slug: str
 
   if (!restaurant?.stripe_customer_id) throw new Error("Sem subscrição activa");
 
-  const session = await stripe.billingPortal.sessions.create({
+  const session = await getStripe().billingPortal.sessions.create({
     customer: restaurant.stripe_customer_id as string,
     return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/menu/${slug}/admin`,
   });

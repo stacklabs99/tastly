@@ -11,11 +11,11 @@ const mockStripeCustomersCreate = vi.fn();
 const mockStripeSessionsCreate = vi.fn();
 const mockStripeBillingPortalCreate = vi.fn();
 vi.mock("@/lib/stripe", () => ({
-  stripe: {
+  getStripe: () => ({
     customers: { create: mockStripeCustomersCreate },
     checkout: { sessions: { create: mockStripeSessionsCreate } },
     billingPortal: { sessions: { create: mockStripeBillingPortalCreate } },
-  },
+  }),
   STRIPE_PRICES: { monthly: "price_monthly_test", yearly: "price_yearly_test" },
 }));
 

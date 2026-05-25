@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 
 const mockConstructEvent = vi.fn();
 vi.mock("@/lib/stripe", () => ({
-  stripe: { webhooks: { constructEvent: mockConstructEvent } },
+  getStripe: () => ({ webhooks: { constructEvent: mockConstructEvent } }),
 }));
 
 const mockSendPaymentFailedEmail = vi.fn().mockResolvedValue(undefined);

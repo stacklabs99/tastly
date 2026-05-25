@@ -3,7 +3,12 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { Dish, DishType } from "@/types";
 import { checkAiUsage, incrementAiUsage } from "@/lib/ai-usage";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Lazy — avoid constructing (and throwing on a missing key) at module load.
+let _client: Anthropic | null = null;
+function client(): Anthropic {
+  if (!_client) _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  return _client;
+}
 
 // ── Rate limiting: 10 requests / IP / 60 s ───────────────────────────────────
 const rl = new Map<string, { n: number; reset: number }>();
@@ -135,8 +140,13 @@ export async function POST(request: NextRequest) {
     ? (locale as string)
     : "pt";
 
+  // restaurant_id is required so AI usage is always counted against a restaurant —
+  // omitting it must not be a way to bypass the per-restaurant monthly limit.
   const restaurantId = typeof d.restaurant_id === "string" ? d.restaurant_id : null;
-  if (restaurantId && !await checkAiUsage(restaurantId)) {
+  if (!restaurantId) {
+    return NextResponse.json({ error: "Restaurante inválido" }, { status: 400 });
+  }
+  if (!await checkAiUsage(restaurantId)) {
     return NextResponse.json(
       { error: "Limite mensal de sugestões atingido para este restaurante." },
       { status: 429 }
@@ -144,7 +154,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const message = await client.messages.create({
+    const message = await client().messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 900,
       messages: [{ role: "user", content: buildPrompt(d as unknown as Dish, safeDishType, safeLocale) }],
@@ -157,7 +167,7 @@ export async function POST(request: NextRequest) {
     if (!jsonMatch) throw new Error("No JSON in response");
 
     const rec = JSON.parse(jsonMatch[0]);
-    if (restaurantId) await incrementAiUsage(restaurantId);
+    await incrementAiUsage(restaurantId);
     return NextResponse.json({
       wines: Array.isArray(rec.wines) ? rec.wines.slice(0, 4) : [],
       starters: Array.isArray(rec.starters) ? rec.starters.slice(0, 4) : [],
