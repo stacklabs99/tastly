@@ -14,13 +14,19 @@ export default async function PlanoPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/menu/${slug}/admin/login`);
 
+  const superAdmins = (process.env.SUPER_ADMIN_EMAILS ?? process.env.SUPER_ADMIN_EMAIL ?? "")
+    .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+  const isSuperAdmin = superAdmins.includes((user.email ?? "").toLowerCase());
+
   const db = createSupabaseServiceClient();
-  const { data: restaurant } = await db
+  let query = db
     .from("restaurants")
     .select("id, plan, trial_ends_at, stripe_customer_id")
-    .eq("slug", slug)
-    .eq("owner_id", user.id)
-    .single();
+    .eq("slug", slug);
+
+  if (!isSuperAdmin) query = query.eq("owner_id", user.id);
+
+  const { data: restaurant } = await query.single();
 
   if (!restaurant) redirect(`/menu/${slug}/admin`);
 
