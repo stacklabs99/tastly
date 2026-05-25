@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import type { Dish, DishType } from "@/types";
+import { checkAiUsage, incrementAiUsage } from "@/lib/ai-usage";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -134,6 +135,14 @@ export async function POST(request: NextRequest) {
     ? (locale as string)
     : "pt";
 
+  const restaurantId = typeof d.restaurant_id === "string" ? d.restaurant_id : null;
+  if (restaurantId && !await checkAiUsage(restaurantId)) {
+    return NextResponse.json(
+      { error: "Limite mensal de sugestões atingido para este restaurante." },
+      { status: 429 }
+    );
+  }
+
   try {
     const message = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
@@ -148,6 +157,7 @@ export async function POST(request: NextRequest) {
     if (!jsonMatch) throw new Error("No JSON in response");
 
     const rec = JSON.parse(jsonMatch[0]);
+    if (restaurantId) await incrementAiUsage(restaurantId);
     return NextResponse.json({
       wines: Array.isArray(rec.wines) ? rec.wines.slice(0, 4) : [],
       starters: Array.isArray(rec.starters) ? rec.starters.slice(0, 4) : [],

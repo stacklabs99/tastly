@@ -11,6 +11,14 @@ vi.mock("@/lib/ai-translate", () => ({
   needsTranslation: mockNeedsTranslation,
 }));
 
+const mockCheckAiUsage = vi.fn().mockResolvedValue(true);
+const mockIncrementAiUsage = vi.fn().mockResolvedValue(undefined);
+vi.mock("@/lib/ai-usage", () => ({
+  checkAiUsage: mockCheckAiUsage,
+  incrementAiUsage: mockIncrementAiUsage,
+  AI_MONTHLY_LIMIT: 200,
+}));
+
 const mockGetUser = vi.fn();
 vi.mock("@/lib/supabase-server", () => ({
   createSupabaseServerClient: vi.fn(async () => ({ auth: { getUser: mockGetUser } })),
@@ -178,8 +186,9 @@ describe("updateDishAction", () => {
   function setupOwnership() {
     mockGetUser.mockResolvedValue({ data: { user: { id: OWNER_ID } } });
     (_currentChain.single as ReturnType<typeof vi.fn>)
-      .mockResolvedValueOnce({ data: { id: RESTAURANT_ID }, error: null }) // assertOwner
-      .mockResolvedValueOnce({ data: { restaurant_id: RESTAURANT_ID }, error: null }); // assertDishOwnership
+      .mockResolvedValueOnce({ data: { id: RESTAURANT_ID }, error: null })             // assertOwner
+      .mockResolvedValueOnce({ data: { restaurant_id: RESTAURANT_ID }, error: null })  // assertDishOwnership
+      .mockResolvedValueOnce({ data: { restaurant_id: RESTAURANT_ID }, error: null }); // checkAiUsage lookup
     // update().eq() is awaitable via chain.then → { data: null, error: null }
   }
 

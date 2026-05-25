@@ -5,6 +5,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import type { Dish, Category, Restaurant, ManualPairings } from "@/types";
 import { autoTranslateDish, needsTranslation } from "@/lib/ai-translate";
+import { checkAiUsage, incrementAiUsage } from "@/lib/ai-usage";
 
 function db() {
   return createSupabaseServiceClient();
@@ -180,9 +181,9 @@ export async function addDishAction(dish: Omit<Dish, "id" | "created_at" | "upda
   if (dish.restaurant_id !== restaurantId) throw new Error("Acesso negado");
 
   let translations = dish.translations ?? null;
-  if (needsTranslation(translations ?? undefined)) {
+  if (needsTranslation(translations ?? undefined) && await checkAiUsage(restaurantId)) {
     const auto = await autoTranslateDish(dish.name, dish.description);
-    if (auto) translations = { ...translations, ...auto };
+    if (auto) { translations = { ...translations, ...auto }; await incrementAiUsage(restaurantId); }
   }
 
   const { data, error } = await db().from("dishes").insert({
@@ -242,8 +243,11 @@ export async function updateDishAction(id: string, updates: Partial<Dish>, slug:
   // Retranslate whenever name or description is updated (keeps translations in sync)
   let translations = updates.translations ?? null;
   if (updates.name && updates.description) {
-    const auto = await autoTranslateDish(updates.name, updates.description);
-    if (auto) translations = auto;
+    const { data: rest } = await db().from("dishes").select("restaurant_id").eq("id", id).single();
+    if (rest && await checkAiUsage(rest.restaurant_id)) {
+      const auto = await autoTranslateDish(updates.name, updates.description);
+      if (auto) { translations = auto; await incrementAiUsage(rest.restaurant_id); }
+    }
   }
 
   const { error } = await db().from("dishes").update({
