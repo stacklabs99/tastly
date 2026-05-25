@@ -2,13 +2,13 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseServiceClient } from "@/lib/supabase";
-import { stripe, STRIPE_PRICE_ID } from "@/lib/stripe";
+import { stripe, STRIPE_PRICES, type BillingInterval } from "@/lib/stripe";
 
 function db() {
   return createSupabaseServiceClient();
 }
 
-export async function createCheckoutSession(restaurantId: string, slug: string): Promise<string> {
+export async function createCheckoutSession(restaurantId: string, slug: string, interval: BillingInterval = "monthly"): Promise<string> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Não autenticado");
@@ -37,7 +37,7 @@ export async function createCheckoutSession(restaurantId: string, slug: string):
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
-    line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
+    line_items: [{ price: STRIPE_PRICES[interval], quantity: 1 }],
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/menu/${slug}/admin?payment=success`,
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/menu/${slug}/admin?payment=cancelled`,
     metadata: { restaurant_id: restaurantId },
