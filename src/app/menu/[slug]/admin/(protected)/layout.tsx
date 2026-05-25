@@ -8,6 +8,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseServiceClient } from "@/lib/supabase";
 import { getRestaurantBySlug } from "@/lib/db";
 import { sendTrialExpiringEmail } from "@/lib/email";
+import { isTrialExpired, getTrialDaysLeft, shouldSendTrialWarning } from "@/lib/trial";
 
 type Props = {
   children: React.ReactNode;
@@ -49,9 +50,7 @@ export default async function ProtectedAdminLayout({ children, params }: Props) 
   // Trial enforcement and warning emails
   const isPaidPlan = restaurant.plan === "pro" || restaurant.plan === "custom";
   if (!isSuperAdmin && !isPaidPlan) {
-    const trialEndsAt = restaurant.trial_ends_at ? new Date(restaurant.trial_ends_at) : null;
-    const now = Date.now();
-    const trialExpired = trialEndsAt ? trialEndsAt.getTime() < now : false;
+    const trialExpired = isTrialExpired(restaurant.trial_ends_at);
     const isPlanoPage = pathname.endsWith("/plano");
 
     if (trialExpired && !isPlanoPage) {
@@ -59,23 +58,14 @@ export default async function ProtectedAdminLayout({ children, params }: Props) 
     }
 
     // Send warning email once when trial is within 3 days
-    if (!trialExpired && trialEndsAt && user.email) {
-      const daysLeft = Math.ceil((trialEndsAt.getTime() - now) / 864e5);
-      const warningSent = restaurant.trial_warning_sent_at
-        ? new Date(restaurant.trial_warning_sent_at)
-        : null;
-      const alreadySentThisWindow = warningSent
-        ? warningSent.getTime() > trialEndsAt.getTime() - 4 * 864e5
-        : false;
-
-      if (daysLeft <= 3 && !alreadySentThisWindow) {
-        // Fire-and-forget — don't block page render
-        const db = createSupabaseServiceClient();
-        db.from("restaurants")
-          .update({ trial_warning_sent_at: new Date().toISOString() })
-          .eq("id", restaurant.id)
-          .then(() => sendTrialExpiringEmail(user.email!, slug, daysLeft));
-      }
+    if (!trialExpired && user.email && shouldSendTrialWarning(restaurant.trial_ends_at, restaurant.trial_warning_sent_at)) {
+      const daysLeft = getTrialDaysLeft(restaurant.trial_ends_at) ?? 0;
+      // Fire-and-forget — don't block page render
+      const db = createSupabaseServiceClient();
+      db.from("restaurants")
+        .update({ trial_warning_sent_at: new Date().toISOString() })
+        .eq("id", restaurant.id)
+        .then(() => sendTrialExpiringEmail(user.email!, slug, daysLeft));
     }
   }
 
