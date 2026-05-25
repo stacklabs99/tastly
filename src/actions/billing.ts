@@ -9,6 +9,8 @@ function db() {
 }
 
 export async function createCheckoutSession(restaurantId: string, slug: string, interval: BillingInterval = "monthly"): Promise<string> {
+  if (!["monthly", "yearly"].includes(interval)) throw new Error("Intervalo inválido");
+
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Não autenticado");
