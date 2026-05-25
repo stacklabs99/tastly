@@ -10,6 +10,7 @@ import { DishCard } from "./DishCard";
 import { DishDetailSheet } from "./DishDetailSheet";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import { getLocalized } from "@/lib/i18n";
+import { track } from "@/lib/track";
 
 type Props = {
   restaurant: Restaurant;
@@ -23,6 +24,17 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
   const [search, setSearch] = useState("");
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const isClickScrolling = useRef(false);
+
+  // Track a menu view once when the public menu loads.
+  useEffect(() => {
+    track("menu_view", restaurant.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSelectDish = (dish: Dish) => {
+    track("dish_view", restaurant.id, dish.id);
+    setSelectedDish(dish);
+  };
 
   const categoriesWithDishes = categories.filter((cat) =>
     dishes.some((d) => d.category_id === cat.id && d.is_available)
@@ -68,7 +80,7 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
     <LanguageProvider>
       <div className="min-h-screen" style={{ background: "#1a1916", "--accent": accent } as React.CSSProperties}>
         <MenuHeader restaurant={restaurant} />
-        <FeaturedCarousel dishes={dishes} onSelect={setSelectedDish} />
+        <FeaturedCarousel dishes={dishes} onSelect={handleSelectDish} />
         <CategoryTabs
           categories={categoriesWithDishes}
           activeId={activeCat}
@@ -113,7 +125,7 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
               ) : (
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                   {searchResults.map((dish, idx) => (
-                    <DishCard key={dish.id} dish={dish} onClick={setSelectedDish} delay={idx * 30} />
+                    <DishCard key={dish.id} dish={dish} onClick={handleSelectDish} delay={idx * 30} />
                   ))}
                 </div>
               )}
@@ -143,7 +155,7 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
 
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                     {catDishes.map((dish, idx) => (
-                      <DishCard key={dish.id} dish={dish} onClick={setSelectedDish} delay={idx * 40} />
+                      <DishCard key={dish.id} dish={dish} onClick={handleSelectDish} delay={idx * 40} />
                     ))}
                   </div>
                 </section>

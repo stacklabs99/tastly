@@ -17,6 +17,7 @@ import {
   X,
   LogOut,
   CreditCard,
+  BarChart3,
 } from "lucide-react";
 import { signOutAction } from "@/actions/auth";
 
@@ -34,6 +35,7 @@ export function AdminSidebar({ slug, userEmail }: Props) {
     { href: base, label: "Dashboard", icon: LayoutDashboard, exact: true },
     { href: `${base}/pratos`, label: "Pratos", icon: UtensilsCrossed },
     { href: `${base}/categorias`, label: "Categorias", icon: Layers },
+    { href: `${base}/analytics`, label: "Analytics", icon: BarChart3 },
     { href: `${base}/restaurante`, label: "Restaurante", icon: Store },
     { href: `${base}/qrcode`, label: "QR Code", icon: QrCode },
     { href: `${base}/plano`, label: "Plano", icon: CreditCard },

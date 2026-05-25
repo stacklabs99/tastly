@@ -9,6 +9,7 @@ import { NutritionBar } from "@/components/ui/NutritionBar";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { TKeys } from "@/lib/i18n";
 import { translateTag, getLocalized } from "@/lib/i18n";
+import { track } from "@/lib/track";
 
 type Props = {
   dish: Dish | null;
@@ -141,6 +142,7 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
     if (!dish || loadingAI) return;
     setLoadingAI(true);
     setActiveTab("ai");
+    track("ai_pairing", dish.restaurant_id, dish.id);
     try {
       const res = await fetch("/api/recommendations", {
         method: "POST",
