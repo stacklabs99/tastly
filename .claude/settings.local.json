@@ -56,7 +56,19 @@
       "Bash(git push *)",
       "Bash(lsof -ti:3000)",
       "Bash(grep *)",
-      "Bash(npm list *)"
+      "Bash(npm list *)",
+      "Bash(sed -n '/pt: {/,/^  },/p' /Users/013.pay.port/tastly/src/lib/i18n.ts)",
+      "Bash(echo \"PT keys: $\\(sed -n '/pt: {/,/^  },/p' /Users/013.pay.port/tastly/src/lib/i18n.ts)",
+      "Bash(npm test *)",
+      "Bash(git remote *)",
+      "Bash(gh run *)",
+      "Bash(unzip -p /tmp/ci-logs.zip \"*/4_Type check.txt\")",
+      "Bash(unzip -l /tmp/ci-logs.zip)",
+      "Bash(npx vitest *)",
+      "Bash(brew install *)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key SUPABASE_SERVICE_ROLE_KEY=dummy-service-key NEXT_PUBLIC_SITE_URL=https://example.com STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy STRIPE_PRICE_MONTHLY=price_dummy_monthly STRIPE_PRICE_YEARLY=price_dummy_yearly npm run build)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key SUPABASE_SERVICE_ROLE_KEY=dummy-service-key NEXT_PUBLIC_SITE_URL=https://example.com STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy STRIPE_PRICE_MONTHLY=price_dummy_monthly STRIPE_PRICE_YEARLY=price_dummy_yearly ANTHROPIC_API_KEY=sk-ant-dummy npm run build)",
+      "Bash(git restore *)"
     ]
   }
 }
