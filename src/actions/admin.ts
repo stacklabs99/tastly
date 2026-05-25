@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import type { Dish, Category, Restaurant, ManualPairings } from "@/types";
 import { autoTranslateDish, needsTranslation } from "@/lib/ai-translate";
 import { checkAiUsage, incrementAiUsage } from "@/lib/ai-usage";
+import { DishSchema, DishUpdateSchema, CategorySchema, CategoryUpdateSchema, RestaurantUpdateSchema } from "@/lib/schemas";
 
 function db() {
   return createSupabaseServiceClient();
@@ -69,6 +70,9 @@ export async function updateRestaurantAction(id: string, updates: Partial<Restau
   const ownedId = await assertOwner(slug);
   if (ownedId !== id) throw new Error("Acesso negado");
 
+  const parsed = RestaurantUpdateSchema.safeParse(updates);
+  if (!parsed.success) throw new Error(parsed.error.issues[0].message);
+
   const { error } = await db().from("restaurants").update({
     name: updates.name,
     description: updates.description ?? null,
@@ -106,6 +110,9 @@ export async function addCategoryAction(cat: Omit<Category, "id" | "created_at">
   const restaurantId = await assertOwner(slug);
   if (cat.restaurant_id !== restaurantId) throw new Error("Acesso negado");
 
+  const parsed = CategorySchema.safeParse(cat);
+  if (!parsed.success) throw new Error(parsed.error.issues[0].message);
+
   const { data, error } = await db().from("categories").insert({
     restaurant_id: restaurantId,
     name: cat.name,
@@ -119,6 +126,9 @@ export async function addCategoryAction(cat: Omit<Category, "id" | "created_at">
 
 export async function updateCategoryAction(id: string, updates: Partial<Category>, slug: string) {
   const restaurantId = await assertOwner(slug);
+
+  const parsed = CategoryUpdateSchema.safeParse(updates);
+  if (!parsed.success) throw new Error(parsed.error.issues[0].message);
 
   // Ensure the category belongs to the owned restaurant
   const { data: cat } = await db().from("categories").select("restaurant_id").eq("id", id).single();
@@ -180,6 +190,9 @@ export async function addDishAction(dish: Omit<Dish, "id" | "created_at" | "upda
   const restaurantId = await assertOwner(slug);
   if (dish.restaurant_id !== restaurantId) throw new Error("Acesso negado");
 
+  const parsed = DishSchema.safeParse(dish);
+  if (!parsed.success) throw new Error(parsed.error.issues[0].message);
+
   let translations = dish.translations ?? null;
   if (needsTranslation(translations ?? undefined) && await checkAiUsage(restaurantId)) {
     const auto = await autoTranslateDish(dish.name, dish.description);
@@ -239,6 +252,9 @@ async function assertDishOwnership(dishId: string, slug: string) {
 
 export async function updateDishAction(id: string, updates: Partial<Dish>, slug: string) {
   await assertDishOwnership(id, slug);
+
+  const parsed = DishUpdateSchema.safeParse(updates);
+  if (!parsed.success) throw new Error(parsed.error.issues[0].message);
 
   // Retranslate whenever name or description is updated (keeps translations in sync)
   let translations = updates.translations ?? null;

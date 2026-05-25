@@ -67,12 +67,13 @@ function buildChain(): MockChain {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const OWNER_ID = "user-abc";
-const RESTAURANT_ID = "rest-123";
+const OWNER_ID      = "00000000-0000-4000-8000-000000000001";
+const RESTAURANT_ID = "00000000-0000-4000-8000-000000000002";
+const CATEGORY_ID   = "00000000-0000-4000-8000-000000000003";
 
 const baseDish = {
   restaurant_id: RESTAURANT_ID,
-  category_id: "cat-1",
+  category_id: CATEGORY_ID,
   name: "Bacalhau à Brás",
   description: "Bacalhau desfiado com ovos e batata palha.",
   price: 18,
@@ -85,7 +86,7 @@ const baseDish = {
 
 const fakeDishRow = {
   ...baseDish,
-  id: "dish-1",
+  id: "00000000-0000-4000-8000-000000000004",
   image_url: null,
   calories: null,
   proteins: null,
