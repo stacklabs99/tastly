@@ -86,6 +86,12 @@ export type TKeys = {
   tag_sem_alcool: string;
   tag_cerveja: string;
   tag_cafe: string;
+  tag_vegetariano: string;
+  tag_vegan: string;
+  // Menu filters
+  filter_label: string;
+  filter_clear: string;
+  filter_none: string;
   // Allergens
   allergen_gluten: string;
   allergen_crustaceos: string;
@@ -194,6 +200,11 @@ const translations: Record<Locale, TKeys> = {
     tag_sem_gluten: "sem glúten",
     tag_saudavel: "saudável",
     tag_sem_lactose: "sem lactose",
+    tag_vegetariano: "vegetariano",
+    tag_vegan: "vegan",
+    filter_label: "Filtrar",
+    filter_clear: "Limpar",
+    filter_none: "Nenhum prato corresponde aos filtros",
     tag_tradicional: "tradicional",
     tag_tinto: "tinto",
     tag_branco: "branco",
@@ -298,6 +309,11 @@ const translations: Record<Locale, TKeys> = {
     tag_sem_gluten: "gluten-free",
     tag_saudavel: "healthy",
     tag_sem_lactose: "lactose-free",
+    tag_vegetariano: "vegetarian",
+    tag_vegan: "vegan",
+    filter_label: "Filter",
+    filter_clear: "Clear",
+    filter_none: "No dishes match the filters",
     tag_tradicional: "traditional",
     tag_tinto: "red",
     tag_branco: "white",
@@ -402,6 +418,11 @@ const translations: Record<Locale, TKeys> = {
     tag_sem_gluten: "sin gluten",
     tag_saudavel: "saludable",
     tag_sem_lactose: "sin lactosa",
+    tag_vegetariano: "vegetariano",
+    tag_vegan: "vegano",
+    filter_label: "Filtrar",
+    filter_clear: "Limpiar",
+    filter_none: "Ningún plato coincide con los filtros",
     tag_tradicional: "tradicional",
     tag_tinto: "tinto",
     tag_branco: "blanco",
@@ -506,6 +527,11 @@ const translations: Record<Locale, TKeys> = {
     tag_sem_gluten: "sans gluten",
     tag_saudavel: "sain",
     tag_sem_lactose: "sans lactose",
+    tag_vegetariano: "végétarien",
+    tag_vegan: "vegan",
+    filter_label: "Filtrer",
+    filter_clear: "Effacer",
+    filter_none: "Aucun plat ne correspond aux filtres",
     tag_tradicional: "traditionnel",
     tag_tinto: "rouge",
     tag_branco: "blanc",
@@ -564,6 +590,8 @@ export function translateTag(tag: string, tr: (key: keyof TKeys) => string): str
   if (t === "sem-glúten" || t === "sem glúten" || t === "sem-gluten") return tr("tag_sem_gluten");
   if (t === "saudável" || t === "saudavel") return tr("tag_saudavel");
   if (t === "sem-lactose" || t === "sem lactose") return tr("tag_sem_lactose");
+  if (t === "vegetariano" || t === "vegetariana") return tr("tag_vegetariano");
+  if (t === "vegan" || t === "vegano" || t === "vegana") return tr("tag_vegan");
   if (t === "tradicional") return tr("tag_tradicional");
   if (t === "tinto") return tr("tag_tinto");
   if (t === "branco") return tr("tag_branco");

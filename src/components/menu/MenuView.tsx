@@ -9,8 +9,9 @@ import { CategoryTabs } from "./CategoryTabs";
 import { DishCard } from "./DishCard";
 import { DishDetailSheet } from "./DishDetailSheet";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
-import { getLocalized } from "@/lib/i18n";
+import { getLocalized, type TKeys } from "@/lib/i18n";
 import { track } from "@/lib/track";
+import { DIET_FILTERS, tagsMatchDiet, passesDiet } from "@/lib/diet";
 
 type Props = {
   restaurant: Restaurant;
@@ -22,6 +23,7 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
   const [activeCat, setActiveCat] = useState(categories[0]?.id ?? "");
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [search, setSearch] = useState("");
+  const [diet, setDiet] = useState<Set<string>>(new Set());
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const isClickScrolling = useRef(false);
 
@@ -36,8 +38,16 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
     setSelectedDish(dish);
   };
 
+  // A dish passes if it matches ALL active dietary filters.
+  const dietPass = (d: Dish) => passesDiet(d.tags, diet);
+
+  // Only offer filters that actually apply to at least one available dish.
+  const availableDiet = DIET_FILTERS.filter((f) =>
+    dishes.some((d) => d.is_available && tagsMatchDiet(d.tags, f.id))
+  );
+
   const categoriesWithDishes = categories.filter((cat) =>
-    dishes.some((d) => d.category_id === cat.id && d.is_available)
+    dishes.some((d) => d.category_id === cat.id && d.is_available && dietPass(d))
   );
 
   useEffect(() => {
@@ -68,7 +78,7 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
 
   const q = search.trim().toLowerCase();
   const searchResults = q.length > 1
-    ? dishes.filter((d) => d.is_available && (
+    ? dishes.filter((d) => d.is_available && dietPass(d) && (
         d.name.toLowerCase().includes(q) ||
         (d.description ?? "").toLowerCase().includes(q)
       ))
@@ -108,6 +118,17 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
               </button>
             )}
           </div>
+
+          {/* Dietary filters */}
+          {availableDiet.length > 0 && (
+            <DietFilterBar filters={availableDiet} active={diet} onToggle={(id) => {
+              setDiet((prev) => {
+                const next = new Set(prev);
+                if (next.has(id)) next.delete(id); else next.add(id);
+                return next;
+              });
+            }} onClear={() => setDiet(new Set())} />
+          )}
         </div>
 
         <main className="px-3 sm:px-4 pb-28 max-w-5xl mx-auto">
@@ -130,10 +151,12 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
                 </div>
               )}
             </section>
+          ) : categoriesWithDishes.length === 0 ? (
+            <DietEmpty />
           ) : (
             /* Normal category view */
             categoriesWithDishes.map((cat, catIdx) => {
-              const catDishes = dishes.filter((d) => d.category_id === cat.id && d.is_available);
+              const catDishes = dishes.filter((d) => d.category_id === cat.id && d.is_available && dietPass(d));
               if (catDishes.length === 0) return null;
 
               return (
@@ -174,6 +197,61 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
         />
       </div>
     </LanguageProvider>
+  );
+}
+
+function DietFilterBar({
+  filters,
+  active,
+  onToggle,
+  onClear,
+}: {
+  filters: { id: string; key: keyof TKeys }[];
+  active: Set<string>;
+  onToggle: (id: string) => void;
+  onClear: () => void;
+}) {
+  const { tr } = useLanguage();
+  return (
+    <div className="flex items-center gap-2 mt-2.5 overflow-x-auto no-scrollbar pb-0.5">
+      <span className="text-[11px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: "#504e41" }}>
+        {tr("filter_label")}
+      </span>
+      {filters.map((f) => {
+        const on = active.has(f.id);
+        return (
+          <button
+            key={f.id}
+            onClick={() => onToggle(f.id)}
+            className="px-3 py-1.5 rounded-full text-xs font-medium transition-all flex-shrink-0 capitalize"
+            style={on
+              ? { background: "var(--accent)", color: "#1a1916", borderWidth: 1, borderStyle: "solid", borderColor: "var(--accent)" }
+              : { background: "rgba(255,255,255,0.04)", color: "#a8a692", border: "1px solid rgba(255,255,255,0.1)" }}
+          >
+            {tr(f.key)}
+          </button>
+        );
+      })}
+      {active.size > 0 && (
+        <button
+          onClick={onClear}
+          className="px-2.5 py-1.5 rounded-full text-xs font-medium flex-shrink-0 transition-colors"
+          style={{ color: "#626250" }}
+        >
+          {tr("filter_clear")}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function DietEmpty() {
+  const { tr } = useLanguage();
+  return (
+    <div className="text-center py-16" style={{ color: "#504e41" }}>
+      <div className="text-4xl mb-3 opacity-30">🥗</div>
+      <p className="text-sm">{tr("filter_none")}</p>
+    </div>
   );
 }
 

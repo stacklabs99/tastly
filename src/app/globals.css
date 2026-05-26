@@ -24,6 +24,9 @@ body {
 ::-webkit-scrollbar-track { background: #1a1916; }
 ::-webkit-scrollbar-thumb { background: #3a3830; border-radius: 2px; }
 
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
 /* ---- Utilities ---- */
 .glass {
   background: rgba(255, 255, 255, 0.045);
