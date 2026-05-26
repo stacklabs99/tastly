@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAdmin } from "@/contexts/AdminContext";
-import { Download, ExternalLink, QrCode } from "lucide-react";
+import { Download, ExternalLink, QrCode, Printer } from "lucide-react";
 
 const SIZES = [
   { label: "Pequeno", value: 200, desc: "Cartão de mesa" },
@@ -131,6 +131,21 @@ export default function QrCodePage() {
 
           <p className="text-[11px] leading-relaxed" style={{ color: "#3a3830" }}>
             O ficheiro PNG inclui fundo escuro e QR em dourado — pronto para imprimir ou usar digitalmente.
+          </p>
+
+          {/* Print menu (PDF) */}
+          <a
+            href={`/menu/${restaurant.slug}/print`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all hover:brightness-110"
+            style={{ background: "rgba(255,255,255,0.05)", color: "#e8e8e0", border: "1px solid rgba(255,255,255,0.1)" }}
+          >
+            <Printer className="w-4 h-4" />
+            Menu para impressão (PDF)
+          </a>
+          <p className="text-[11px] leading-relaxed" style={{ color: "#3a3830" }}>
+            Abre uma versão limpa do menu pronta a imprimir ou guardar como PDF.
           </p>
         </div>
       </div>

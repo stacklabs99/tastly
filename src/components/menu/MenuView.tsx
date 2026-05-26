@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Search, X } from "lucide-react";
-import type { Restaurant, Category, Dish } from "@/types";
+import type { Restaurant, Category, Dish, Allergen } from "@/types";
+import { ALLERGEN_INFO } from "@/types";
 import { MenuHeader } from "./MenuHeader";
 import { FeaturedCarousel } from "./FeaturedCarousel";
 import { CategoryTabs } from "./CategoryTabs";
@@ -11,7 +12,7 @@ import { DishDetailSheet } from "./DishDetailSheet";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import { getLocalized, type TKeys } from "@/lib/i18n";
 import { track } from "@/lib/track";
-import { DIET_FILTERS, tagsMatchDiet, passesDiet } from "@/lib/diet";
+import { DIET_FILTERS, tagsMatchDiet, passesDiet, passesAllergens } from "@/lib/diet";
 
 type Props = {
   restaurant: Restaurant;
@@ -24,6 +25,7 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [search, setSearch] = useState("");
   const [diet, setDiet] = useState<Set<string>>(new Set());
+  const [excluded, setExcluded] = useState<Set<Allergen>>(new Set());
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const isClickScrolling = useRef(false);
 
@@ -38,12 +40,17 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
     setSelectedDish(dish);
   };
 
-  // A dish passes if it matches ALL active dietary filters.
-  const dietPass = (d: Dish) => passesDiet(d.tags, diet);
+  // A dish passes if it matches ALL active dietary filters AND has none of the
+  // excluded allergens.
+  const dietPass = (d: Dish) =>
+    passesDiet(d.tags, diet) && passesAllergens(d.allergens, excluded);
 
-  // Only offer filters that actually apply to at least one available dish.
+  // Only offer filters/allergens that actually apply to at least one available dish.
   const availableDiet = DIET_FILTERS.filter((f) =>
     dishes.some((d) => d.is_available && tagsMatchDiet(d.tags, f.id))
+  );
+  const availableAllergens = (Object.keys(ALLERGEN_INFO) as Allergen[]).filter((a) =>
+    dishes.some((d) => d.is_available && d.allergens.includes(a))
   );
 
   const categoriesWithDishes = categories.filter((cat) =>
@@ -128,6 +135,17 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
                 return next;
               });
             }} onClear={() => setDiet(new Set())} />
+          )}
+
+          {/* Allergen exclusion */}
+          {availableAllergens.length > 0 && (
+            <AllergenFilterBar allergens={availableAllergens} excluded={excluded} onToggle={(a) => {
+              setExcluded((prev) => {
+                const next = new Set(prev);
+                if (next.has(a)) next.delete(a); else next.add(a);
+                return next;
+              });
+            }} onClear={() => setExcluded(new Set())} />
           )}
         </div>
 
@@ -238,6 +256,49 @@ function DietFilterBar({
           className="px-2.5 py-1.5 rounded-full text-xs font-medium flex-shrink-0 transition-colors"
           style={{ color: "#626250" }}
         >
+          {tr("filter_clear")}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function AllergenFilterBar({
+  allergens,
+  excluded,
+  onToggle,
+  onClear,
+}: {
+  allergens: Allergen[];
+  excluded: Set<Allergen>;
+  onToggle: (a: Allergen) => void;
+  onClear: () => void;
+}) {
+  const { tr } = useLanguage();
+  return (
+    <div className="flex items-center gap-2 mt-2 overflow-x-auto no-scrollbar pb-0.5">
+      <span className="text-[11px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: "#504e41" }}>
+        {tr("filter_exclude")}
+      </span>
+      {allergens.map((a) => {
+        const on = excluded.has(a);
+        const info = ALLERGEN_INFO[a];
+        return (
+          <button
+            key={a}
+            onClick={() => onToggle(a)}
+            className="px-2.5 py-1.5 rounded-full text-xs font-medium transition-all flex-shrink-0 flex items-center gap-1"
+            style={on
+              ? { background: "rgba(230,126,75,0.2)", color: "#e67e4b", border: "1px solid rgba(230,126,75,0.4)", textDecoration: "line-through" }
+              : { background: "rgba(255,255,255,0.04)", color: "#a8a692", border: "1px solid rgba(255,255,255,0.1)" }}
+          >
+            <span style={{ textDecoration: "none" }}>{info.icon}</span>
+            {tr(`allergen_${a}` as keyof TKeys)}
+          </button>
+        );
+      })}
+      {excluded.size > 0 && (
+        <button onClick={onClear} className="px-2.5 py-1.5 rounded-full text-xs font-medium flex-shrink-0" style={{ color: "#626250" }}>
           {tr("filter_clear")}
         </button>
       )}

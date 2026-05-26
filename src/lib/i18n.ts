@@ -92,6 +92,7 @@ export type TKeys = {
   filter_label: string;
   filter_clear: string;
   filter_none: string;
+  filter_exclude: string;
   // Allergens
   allergen_gluten: string;
   allergen_crustaceos: string;
@@ -205,6 +206,7 @@ const translations: Record<Locale, TKeys> = {
     filter_label: "Filtrar",
     filter_clear: "Limpar",
     filter_none: "Nenhum prato corresponde aos filtros",
+    filter_exclude: "Sem",
     tag_tradicional: "tradicional",
     tag_tinto: "tinto",
     tag_branco: "branco",
@@ -314,6 +316,7 @@ const translations: Record<Locale, TKeys> = {
     filter_label: "Filter",
     filter_clear: "Clear",
     filter_none: "No dishes match the filters",
+    filter_exclude: "No",
     tag_tradicional: "traditional",
     tag_tinto: "red",
     tag_branco: "white",
@@ -423,6 +426,7 @@ const translations: Record<Locale, TKeys> = {
     filter_label: "Filtrar",
     filter_clear: "Limpiar",
     filter_none: "Ningún plato coincide con los filtros",
+    filter_exclude: "Sin",
     tag_tradicional: "tradicional",
     tag_tinto: "tinto",
     tag_branco: "blanco",
@@ -532,6 +536,7 @@ const translations: Record<Locale, TKeys> = {
     filter_label: "Filtrer",
     filter_clear: "Effacer",
     filter_none: "Aucun plat ne correspond aux filtres",
+    filter_exclude: "Sans",
     tag_tradicional: "traditionnel",
     tag_tinto: "rouge",
     tag_branco: "blanc",

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { DIET_FILTERS, normTag, tagsMatchDiet, passesDiet } from "@/lib/diet";
+import { DIET_FILTERS, normTag, tagsMatchDiet, passesDiet, passesAllergens } from "@/lib/diet";
 
 describe("normTag", () => {
   it("lowercases, trims, strips accents and hyphenates spaces", () => {
@@ -49,6 +49,28 @@ describe("passesDiet (AND across active filters)", () => {
 
   it("fails when the dish matches none of the active filters", () => {
     expect(passesDiet(["carne"], new Set(["vegetariano"]))).toBe(false);
+  });
+});
+
+describe("passesAllergens (exclude logic)", () => {
+  it("passes when nothing is excluded", () => {
+    expect(passesAllergens(["crustaceos", "peixe"], new Set())).toBe(true);
+  });
+
+  it("excludes a dish that contains an excluded allergen", () => {
+    expect(passesAllergens(["crustaceos"], new Set(["crustaceos"]))).toBe(false);
+  });
+
+  it("keeps a dish that contains none of the excluded allergens", () => {
+    expect(passesAllergens(["peixe"], new Set(["crustaceos", "amendoins"]))).toBe(true);
+  });
+
+  it("excludes if the dish contains ANY one of several excluded allergens", () => {
+    expect(passesAllergens(["leite", "ovos"], new Set(["amendoins", "leite"]))).toBe(false);
+  });
+
+  it("keeps a dish with no allergens regardless of exclusions", () => {
+    expect(passesAllergens([], new Set(["crustaceos", "gluten"]))).toBe(true);
   });
 });
 

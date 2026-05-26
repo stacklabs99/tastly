@@ -27,3 +27,12 @@ export function passesDiet(tags: string[], activeIds: Iterable<string>): boolean
   }
   return true;
 }
+
+// True unless the dish contains ANY of the excluded allergens.
+export function passesAllergens(dishAllergens: string[], excluded: Iterable<string>): boolean {
+  const set = new Set(dishAllergens);
+  for (const a of excluded) {
+    if (set.has(a)) return false;
+  }
+  return true;
+}

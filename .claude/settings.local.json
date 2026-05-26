@@ -69,7 +69,8 @@
       "Bash(NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key SUPABASE_SERVICE_ROLE_KEY=dummy-service-key NEXT_PUBLIC_SITE_URL=https://example.com STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy STRIPE_PRICE_MONTHLY=price_dummy_monthly STRIPE_PRICE_YEARLY=price_dummy_yearly npm run build)",
       "Bash(NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key SUPABASE_SERVICE_ROLE_KEY=dummy-service-key NEXT_PUBLIC_SITE_URL=https://example.com STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy STRIPE_PRICE_MONTHLY=price_dummy_monthly STRIPE_PRICE_YEARLY=price_dummy_yearly ANTHROPIC_API_KEY=sk-ant-dummy npm run build)",
       "Bash(git restore *)",
-      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key SUPABASE_SERVICE_ROLE_KEY=dummy-service-key NEXT_PUBLIC_SITE_URL=https://example.com npm run build)"
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key SUPABASE_SERVICE_ROLE_KEY=dummy-service-key NEXT_PUBLIC_SITE_URL=https://example.com npm run build)",
+      "Bash(echo \"print page status: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/menu/casa-do-mar/print\\)\")"
     ]
   }
 }
