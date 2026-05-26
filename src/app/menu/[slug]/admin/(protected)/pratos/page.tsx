@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useParams } from "next/navigation";
-import { Plus, Search, Pencil, Eye, EyeOff, Star } from "lucide-react";
+import { Plus, Search, Pencil, Eye, EyeOff, Star, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/admin/PageHeader";
 
 export default function PratosPage() {
@@ -38,13 +38,23 @@ export default function PratosPage() {
         title="Pratos"
         subtitle={`${dishes.length} pratos · ${categories.length} categorias`}
         action={
-          <Link
-            href={`${base}/pratos/novo`}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#1a1916] bg-[#e6a81e] active:scale-95 transition-all hover:brightness-110"
-          >
-            <Plus className="w-4 h-4" />
-            Novo Prato
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`${base}/importar`}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95 hover:brightness-110"
+              style={{ background: "rgba(230,168,30,0.1)", color: "#e6a81e", border: "1px solid rgba(230,168,30,0.25)" }}
+            >
+              <Sparkles className="w-4 h-4" />
+              Importar (IA)
+            </Link>
+            <Link
+              href={`${base}/pratos/novo`}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#1a1916] bg-[#e6a81e] active:scale-95 transition-all hover:brightness-110"
+            >
+              <Plus className="w-4 h-4" />
+              Novo Prato
+            </Link>
+          </div>
         }
       />
 
