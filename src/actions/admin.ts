@@ -179,6 +179,7 @@ export async function fetchDishes(restaurantId: string): Promise<Dish[]> {
     fat: d.fat ?? undefined,
     is_available: d.is_available,
     is_featured: d.is_featured,
+    is_special: d.is_special ?? false,
     tags: d.tags ?? [],
     position: d.position,
     manual_pairings: (d.manual_pairings ?? undefined) as ManualPairings | undefined,
@@ -215,6 +216,7 @@ export async function addDishAction(dish: Omit<Dish, "id" | "created_at" | "upda
     fat: dish.fat ?? null,
     is_available: dish.is_available,
     is_featured: dish.is_featured,
+    is_special: dish.is_special ?? false,
     tags: dish.tags,
     position: dish.position,
     manual_pairings: dish.manual_pairings ?? null,
@@ -237,6 +239,7 @@ export async function addDishAction(dish: Omit<Dish, "id" | "created_at" | "upda
     fat: data.fat ?? undefined,
     is_available: data.is_available,
     is_featured: data.is_featured,
+    is_special: data.is_special ?? false,
     tags: data.tags ?? [],
     position: data.position,
     manual_pairings: (data.manual_pairings ?? undefined) as ManualPairings | undefined,
@@ -277,6 +280,7 @@ export async function updateDishAction(id: string, updates: Partial<Dish>, slug:
   if (has("fat")) fields.fat = updates.fat ?? null;
   if (has("is_available")) fields.is_available = updates.is_available;
   if (has("is_featured")) fields.is_featured = updates.is_featured;
+  if (has("is_special")) fields.is_special = updates.is_special;
   if (has("tags")) fields.tags = updates.tags;
   if (has("position")) fields.position = updates.position;
   if (has("manual_pairings")) fields.manual_pairings = updates.manual_pairings ?? null;

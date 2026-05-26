@@ -41,6 +41,7 @@ export type Dish = {
   fat?: number;
   is_available: boolean;
   is_featured: boolean;
+  is_special: boolean;
   tags: string[];
   position: number;
   manual_pairings?: ManualPairings;

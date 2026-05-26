@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useParams } from "next/navigation";
-import { Plus, Search, Pencil, Eye, EyeOff, Star, Sparkles } from "lucide-react";
+import { Plus, Search, Pencil, Eye, EyeOff, Star, Sparkles, Sun } from "lucide-react";
 import { PageHeader } from "@/components/admin/PageHeader";
 
 export default function PratosPage() {
@@ -181,6 +181,16 @@ export default function PratosPage() {
                             : { background: "rgba(255,255,255,0.04)", color: "#484640" }}
                         >
                           <Star className="w-3.5 h-3.5" fill={dish.is_featured ? "#e6a81e" : "none"} />
+                        </button>
+                        <button
+                          title={dish.is_special ? "Remover dos pratos do dia" : "Marcar prato do dia"}
+                          onClick={() => updateDish(dish.id, { is_special: !dish.is_special })}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
+                          style={dish.is_special
+                            ? { background: "rgba(126,184,164,0.15)", color: "#7eb8a4" }
+                            : { background: "rgba(255,255,255,0.04)", color: "#484640" }}
+                        >
+                          <Sun className="w-3.5 h-3.5" />
                         </button>
                         <button
                           title={dish.is_available ? "Marcar esgotado" : "Marcar disponível"}

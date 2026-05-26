@@ -80,6 +80,7 @@ const baseDish = {
   allergens: [] as [],
   is_available: true,
   is_featured: false,
+  is_special: false,
   tags: [] as string[],
   position: 1,
 };
@@ -277,6 +278,18 @@ describe("updateDishAction", () => {
 
     const fields = (_currentChain.update as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(Object.keys(fields).sort()).toEqual(["is_available", "updated_at"]);
+  });
+
+  it("toggling is_special only writes is_special and updated_at (no data loss)", async () => {
+    setupOwnership();
+
+    const { updateDishAction } = await import("@/actions/admin");
+    await updateDishAction("dish-1", { is_special: true }, "casa-do-mar");
+
+    const fields = (_currentChain.update as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(Object.keys(fields).sort()).toEqual(["is_special", "updated_at"]);
+    expect(fields).not.toHaveProperty("translations");
+    expect(fields).not.toHaveProperty("image_url");
   });
 
   it("updating only price preserves translations (does not set them to null)", async () => {

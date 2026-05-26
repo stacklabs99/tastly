@@ -97,6 +97,10 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
     <LanguageProvider>
       <div className="min-h-screen" style={{ background: "#1a1916", "--accent": accent } as React.CSSProperties}>
         <MenuHeader restaurant={restaurant} />
+        <DailySpecials
+          dishes={dishes.filter((d) => d.is_special && d.is_available && dietPass(d))}
+          onSelect={handleSelectDish}
+        />
         <FeaturedCarousel dishes={dishes} onSelect={handleSelectDish} />
         <CategoryTabs
           categories={categoriesWithDishes}
@@ -215,6 +219,33 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
         />
       </div>
     </LanguageProvider>
+  );
+}
+
+function DailySpecials({ dishes, onSelect }: { dishes: Dish[]; onSelect: (d: Dish) => void }) {
+  const { tr } = useLanguage();
+  if (dishes.length === 0) return null;
+  return (
+    <section className="px-3 sm:px-4 pt-4 max-w-5xl mx-auto">
+      <div
+        className="rounded-2xl p-4"
+        style={{
+          background: "linear-gradient(135deg, rgba(126,184,164,0.12) 0%, rgba(126,184,164,0.04) 100%)",
+          border: "1px solid rgba(126,184,164,0.25)",
+        }}
+      >
+        <div className="flex items-baseline gap-2 mb-3 px-1">
+          <span style={{ fontSize: 16 }}>☀️</span>
+          <h2 className="font-serif font-semibold" style={{ color: "#9ed4c0", fontSize: 18 }}>{tr("daily_special")}</h2>
+          <span className="text-xs" style={{ color: "#6a8a80" }}>· {tr("daily_special_sub")}</span>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          {dishes.map((dish, idx) => (
+            <DishCard key={dish.id} dish={dish} onClick={onSelect} delay={idx * 40} />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 

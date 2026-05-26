@@ -141,6 +141,7 @@ export function DishForm({ initial, categories, dishes = [], slug, onSave, onDel
     fat: undefined,
     is_available: true,
     is_featured: false,
+    is_special: false,
     tags: [],
     position: 1,
     ...initial,
@@ -451,6 +452,13 @@ export function DishForm({ initial, categories, dishes = [], slug, onSave, onDel
               sub="Aparece no carrossel"
               checked={form.is_featured}
               onChange={(v) => set("is_featured", v)}
+            />
+            <div style={{ height: 1, background: "rgba(255,255,255,0.05)" }} />
+            <Toggle
+              label="Prato do Dia"
+              sub="Destacado no topo do menu"
+              checked={form.is_special}
+              onChange={(v) => set("is_special", v)}
             />
           </Card>
 

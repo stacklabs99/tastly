@@ -28,6 +28,7 @@ export const DishSchema = z.object({
   fat: z.number().min(0).max(999).nullable().optional(),
   is_available: z.boolean(),
   is_featured: z.boolean(),
+  is_special: z.boolean().optional(),
   tags: z.array(z.string().max(50)).max(10),
   position: z.number().int().min(0).max(9999),
   manual_pairings: z.any().optional(),

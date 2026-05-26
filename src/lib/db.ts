@@ -61,6 +61,7 @@ export async function getDishesForRestaurant(restaurantId: string): Promise<Dish
     fat: d.fat ?? undefined,
     is_available: d.is_available,
     is_featured: d.is_featured,
+    is_special: d.is_special ?? false,
     tags: d.tags ?? [],
     position: d.position,
     manual_pairings: (d.manual_pairings ?? undefined) as ManualPairings | undefined,

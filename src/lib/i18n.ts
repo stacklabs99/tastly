@@ -112,6 +112,9 @@ export type TKeys = {
   ai_rec_available: string;
   // Chef's picks carousel
   chefs_pick: string;
+  // Daily specials
+  daily_special: string;
+  daily_special_sub: string;
   // Review section
   review_title: string;
   review_sub: string;
@@ -139,6 +142,8 @@ const translations: Record<Locale, TKeys> = {
     soldOut: "Esgotado",
     popular: "Best Seller",
     chefs_pick: "Sugestões do Chefe",
+    daily_special: "Pratos do Dia",
+    daily_special_sub: "As sugestões de hoje",
     review_title: "Como foi a sua experiência?",
     review_sub: "A sua avaliação ajuda-nos a crescer e inspira outros a descobrir-nos.",
     review_cta: "Avaliar no Google",
@@ -249,6 +254,8 @@ const translations: Record<Locale, TKeys> = {
     soldOut: "Sold out",
     popular: "Best Seller",
     chefs_pick: "Chef's Picks",
+    daily_special: "Today's Specials",
+    daily_special_sub: "Today's suggestions",
     review_title: "How was your experience?",
     review_sub: "Your review helps us grow and inspires others to discover us.",
     review_cta: "Review on Google",
@@ -359,6 +366,8 @@ const translations: Record<Locale, TKeys> = {
     soldOut: "Agotado",
     popular: "Best Seller",
     chefs_pick: "Sugerencias del Chef",
+    daily_special: "Platos del Día",
+    daily_special_sub: "Las sugerencias de hoy",
     review_title: "¿Cómo fue tu experiencia?",
     review_sub: "Tu valoración nos ayuda a crecer e inspira a otros a descubrirnos.",
     review_cta: "Valorar en Google",
@@ -469,6 +478,8 @@ const translations: Record<Locale, TKeys> = {
     soldOut: "Épuisé",
     popular: "Best Seller",
     chefs_pick: "Sélection du Chef",
+    daily_special: "Plats du Jour",
+    daily_special_sub: "Les suggestions du jour",
     review_title: "Comment s'est passée votre expérience ?",
     review_sub: "Votre avis nous aide à grandir et inspire d'autres à nous découvrir.",
     review_cta: "Évaluer sur Google",
