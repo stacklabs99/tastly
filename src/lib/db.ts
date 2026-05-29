@@ -25,6 +25,7 @@ export async function getRestaurantBySlug(slug: string): Promise<Restaurant | nu
     plan: (data.plan ?? "starter") as import("@/types").Plan,
     trial_ends_at: data.trial_ends_at ?? new Date(Date.now() + 15 * 864e5).toISOString(),
     trial_warning_sent_at: data.trial_warning_sent_at ?? null,
+    theme: data.theme ?? "elegante",
     created_at: data.created_at,
   };
 }

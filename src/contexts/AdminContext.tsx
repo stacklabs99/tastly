@@ -49,6 +49,7 @@ export function AdminProvider({ children, slug }: Props) {
     is_active: true,
     plan: "starter",
     trial_ends_at: new Date(Date.now() + 15 * 864e5).toISOString(),
+    theme: "elegante",
     created_at: new Date().toISOString(),
   });
   const [loading, setLoading] = useState(true);

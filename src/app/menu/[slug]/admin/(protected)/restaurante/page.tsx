@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useAdmin } from "@/contexts/AdminContext";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Check } from "lucide-react";
+import { THEMES } from "@/lib/themes";
 
 const PRESET_COLORS = [
   { label: "Dourado", value: "#e6a81e" },
@@ -127,6 +128,35 @@ export default function RestaurantePage() {
               style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.1)" }}
             />
             <span className="text-xs font-mono text-[#626250]">{accent}</span>
+          </div>
+        </div>
+
+        {/* Estilo do Menu */}
+        <div className={sectionCls} style={sectionStyle}>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-[#626250]">Estilo do Menu</h2>
+          <p className="text-xs text-[#484640]">Define a tipografia e o ar do menu visto pelos clientes.</p>
+          <div className="grid grid-cols-2 gap-2.5">
+            {THEMES.map((t) => {
+              const active = (form.theme ?? "elegante") === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => set("theme", t.id)}
+                  className="text-left rounded-xl p-3.5 transition-all"
+                  style={active
+                    ? { background: "rgba(230,168,30,0.1)", border: "1px solid rgba(230,168,30,0.4)" }
+                    : { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-lg" style={{ ...t.sampleStyle, color: "#f0efe9" }}>Aa</span>
+                    {active && <Check className="w-4 h-4 text-[#e6a81e]" />}
+                  </div>
+                  <p className="text-sm font-semibold" style={{ color: active ? "#e6a81e" : "#d4d4c8" }}>{t.label}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "#626250" }}>{t.description}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
 

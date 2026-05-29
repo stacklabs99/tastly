@@ -62,6 +62,7 @@ export async function fetchRestaurantBySlug(slug: string): Promise<Restaurant | 
     is_active: data.is_active,
     plan: (data.plan ?? "starter") as import("@/types").Plan,
     trial_ends_at: data.trial_ends_at ?? new Date(Date.now() + 15 * 864e5).toISOString(),
+    theme: data.theme ?? "elegante",
     created_at: data.created_at,
   };
 }
@@ -83,6 +84,7 @@ export async function updateRestaurantAction(id: string, updates: Partial<Restau
     cuisine_type: updates.cuisine_type ?? null,
     review_url: safeUrl(updates.review_url),
     primary_color: updates.primary_color ?? null,
+    ...(updates.theme ? { theme: updates.theme } : {}),
     ...(updates.slug ? { slug: updates.slug } : {}),
   }).eq("id", id);
   if (error) throw new Error(error.message);

@@ -76,6 +76,7 @@ export type Restaurant = {
   plan: Plan;
   trial_ends_at: string;
   trial_warning_sent_at?: string | null;
+  theme: string;
   created_at: string;
 };
 

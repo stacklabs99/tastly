@@ -64,6 +64,7 @@ export const RestaurantUpdateSchema = z.object({
     .nullable()
     .optional(),
   review_url: httpsUrl.nullable().optional(),
+  theme: z.enum(["elegante", "moderno", "classico", "descontraido"]).optional(),
   slug: z
     .string()
     .min(3)

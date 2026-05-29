@@ -13,6 +13,7 @@ import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import { getLocalized, type TKeys } from "@/lib/i18n";
 import { track } from "@/lib/track";
 import { DIET_FILTERS, tagsMatchDiet, passesDiet, passesAllergens } from "@/lib/diet";
+import { getTheme } from "@/lib/themes";
 
 type Props = {
   restaurant: Restaurant;
@@ -92,10 +93,19 @@ export function MenuView({ restaurant, categories, dishes }: Props) {
     : null;
 
   const accent = restaurant.primary_color ?? "#e6a81e";
+  const theme = getTheme(restaurant.theme);
 
   return (
     <LanguageProvider>
-      <div className="min-h-screen" style={{ background: "#1a1916", "--accent": accent } as React.CSSProperties}>
+      <div
+        className="min-h-screen menu-themed"
+        style={{
+          background: "#1a1916",
+          "--accent": accent,
+          "--theme-heading": theme.heading,
+          "--theme-body": theme.body,
+        } as React.CSSProperties}
+      >
         <MenuHeader restaurant={restaurant} />
         <DailySpecials
           dishes={dishes.filter((d) => d.is_special && d.is_available && dietPass(d))}
