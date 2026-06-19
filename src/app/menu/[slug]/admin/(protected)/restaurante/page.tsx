@@ -7,6 +7,10 @@ import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Check } from "lucide-react";
 import { THEMES } from "@/lib/themes";
 
+const Label = ({ children }: { children: React.ReactNode }) => (
+  <label className="block text-xs font-semibold uppercase tracking-widest text-[#626250] mb-2">{children}</label>
+);
+
 const PRESET_COLORS = [
   { label: "Dourado", value: "#e6a81e" },
   { label: "Verde", value: "#7eb8a4" },
@@ -27,6 +31,7 @@ export default function RestaurantePage() {
   // Re-sync the form once the restaurant finishes loading (context starts empty).
   // Keyed on id so it only runs when real data arrives, not on every edit.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm({ ...restaurant });
     setCoverUrl(restaurant.cover_url ?? "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -45,10 +50,6 @@ export default function RestaurantePage() {
   const inputStyle = { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" };
   const sectionCls = "rounded-2xl p-5 space-y-4";
   const sectionStyle = { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" };
-
-  const Label = ({ children }: { children: React.ReactNode }) => (
-    <label className="block text-xs font-semibold uppercase tracking-widest text-[#626250] mb-2">{children}</label>
-  );
 
   const accent = form.primary_color ?? "#e6a81e";
 

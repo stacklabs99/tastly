@@ -41,7 +41,10 @@ export function AdminSidebar({ slug, userEmail }: Props) {
     { href: `${base}/plano`, label: "Plano", icon: CreditCard },
   ];
 
-  const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => (
+  // Inline render helper (not a component) — used twice below for desktop
+  // and mobile. Defining it as JSX <Component> would trip the React purity
+  // rule about defining components during render.
+  const renderSidebar = (mobile = false) => (
     <aside
       className="flex flex-col h-full flex-shrink-0 border-r transition-all duration-300"
       style={{
@@ -236,7 +239,7 @@ export function AdminSidebar({ slug, userEmail }: Props) {
       {/* Desktop sidebar */}
       <div className="hidden md:block" style={{ minHeight: "100dvh" }}>
         <div className="sticky top-0" style={{ minHeight: "100dvh" }}>
-          <SidebarContent />
+          {renderSidebar()}
         </div>
       </div>
 
@@ -253,7 +256,7 @@ export function AdminSidebar({ slug, userEmail }: Props) {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
           <div className="h-full" onClick={(e) => e.stopPropagation()}>
-            <SidebarContent mobile />
+            {renderSidebar(true)}
           </div>
           <div
             className="flex-1"

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ChevronLeft, ExternalLink, Eye, EyeOff, Trash2,
-  UtensilsCrossed, Layers, User, Calendar, Phone, MapPin,
+  UtensilsCrossed, User, Calendar, Phone, MapPin,
   Star, AlertCircle, Globe, Palette,
 } from "lucide-react";
 import type { RestaurantDetail } from "@/actions/superadmin";

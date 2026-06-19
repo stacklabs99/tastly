@@ -156,7 +156,9 @@ export function DishForm({ initial, categories, dishes = [], slug, onSave, onDel
     initial?.translations ?? {}
   );
 
-  // keep imgUrl in sync when initial changes
+  // Sync imgUrl when the `initial` prop changes (e.g. switching between dishes
+  // in the same mounted form). Fires once per dish change.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setImgUrl(initial?.image_url ?? ""); }, [initial]);
 
   const set = <K extends keyof DishFormData>(key: K, val: DishFormData[K]) =>
@@ -397,7 +399,7 @@ export function DishForm({ initial, categories, dishes = [], slug, onSave, onDel
               </span>
             </div>
             <p className="text-xs mb-4" style={{ color: "#484640" }}>
-              Quando preenchida, estas sugestões aparecem diretamente no menu como "Sugestão da Casa".
+              Quando preenchida, estas sugestões aparecem diretamente no menu como &ldquo;Sugestão da Casa&rdquo;.
             </p>
             <PairingsEditor value={pairings} onChange={setPairings} dishes={dishes} categories={categories} />
           </Card>

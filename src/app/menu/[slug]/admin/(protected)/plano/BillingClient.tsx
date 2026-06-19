@@ -20,7 +20,6 @@ export function BillingClient({ restaurantId, slug, plan, trialDaysLeft, hasSubs
   const paymentStatus = params.get("payment");
 
   const isPro = plan === "pro" || plan === "custom";
-  const trialExpired = trialDaysLeft !== null && trialDaysLeft <= 0;
 
   async function handleCheckout() {
     setLoading(true);

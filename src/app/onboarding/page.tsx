@@ -57,16 +57,24 @@ export default function OnboardingPage() {
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  // Auto-generate slug from name
+  // Auto-generate slug from name. Conceptually derived state, but slug is
+  // also user-editable (manual override flips slugManual), so it needs to be
+  // real state. The effect only fires when name changes, not in a render loop.
   useEffect(() => {
     if (slugManual) return;
     const generated = slugify(name);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSlug(generated);
   }, [name, slugManual]);
 
-  // Debounced slug availability check
+  // Debounced slug availability check. The sync status resets here fire once
+  // per slug change, not in a render loop.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (!slug) { setSlugStatus("idle"); return; }
+    if (!slug) {
+      setSlugStatus("idle");
+      return;
+    }
     setSlugStatus("checking");
     const t = setTimeout(async () => {
       const available = await checkSlugAvailable(slug);
@@ -74,6 +82,7 @@ export default function OnboardingPage() {
     }, 500);
     return () => clearTimeout(t);
   }, [slug]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   function handleSlugChange(val: string) {
     setSlugManual(true);

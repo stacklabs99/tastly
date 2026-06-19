@@ -111,7 +111,7 @@ export function PairingsEditor({ value, onChange, dishes = [], categories = [] }
             style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed rgba(255,255,255,0.07)" }}
           >
             <p className="text-sm" style={{ color: "#484640" }}>Sem {tab.label.toLowerCase()} adicionados</p>
-            <p className="text-xs mt-0.5" style={{ color: "#3a3830" }}>Clica em "Adicionar" para começar</p>
+            <p className="text-xs mt-0.5" style={{ color: "#3a3830" }}>Clica em &ldquo;Adicionar&rdquo; para começar</p>
           </div>
         )}
 

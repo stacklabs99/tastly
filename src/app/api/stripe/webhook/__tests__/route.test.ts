@@ -162,6 +162,39 @@ describe("POST /api/stripe/webhook — events", () => {
     expect(_chain.update).toHaveBeenCalledWith({ plan: "starter", is_active: false });
   });
 
+  it("invoice events resolve restaurant_id from parent.subscription_details metadata", async () => {
+    mockConstructEvent.mockReturnValue({
+      type: "invoice.payment_succeeded",
+      data: {
+        object: {
+          metadata: null,
+          parent: { subscription_details: { metadata: { restaurant_id: REST_ID } } },
+        },
+      },
+    });
+
+    const { POST } = await import("../route");
+    await POST(makeRequest("{}", "sig"));
+
+    expect(_chain.update).toHaveBeenCalledWith({ plan: "pro", is_active: true });
+    expect(_chain.eq).toHaveBeenCalledWith("id", REST_ID);
+  });
+
+  it("invoice events fall back to stripe_customer_id lookup when metadata is absent", async () => {
+    mockConstructEvent.mockReturnValue({
+      type: "invoice.payment_succeeded",
+      data: { object: { metadata: null, customer: "cus_123" } },
+    });
+    _chain.single.mockResolvedValueOnce({ data: { id: REST_ID }, error: null });
+
+    const { POST } = await import("../route");
+    await POST(makeRequest("{}", "sig"));
+
+    expect(_chain.eq).toHaveBeenCalledWith("stripe_customer_id", "cus_123");
+    expect(_chain.update).toHaveBeenCalledWith({ plan: "pro", is_active: true });
+    expect(_chain.eq).toHaveBeenCalledWith("id", REST_ID);
+  });
+
   it("events without restaurant_id in metadata are ignored gracefully", async () => {
     mockConstructEvent.mockReturnValue(makeEvent("checkout.session.completed", {}));
 

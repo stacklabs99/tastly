@@ -139,8 +139,8 @@ describe("createCheckoutSession", () => {
 
     expect(mockStripeSessionsCreate).toHaveBeenCalledWith(
       expect.objectContaining({
-        success_url: `${SITE_URL}/menu/${SLUG}/admin?payment=success`,
-        cancel_url: `${SITE_URL}/menu/${SLUG}/admin?payment=cancelled`,
+        success_url: `${SITE_URL}/menu/${SLUG}/admin/plano?payment=success`,
+        cancel_url: `${SITE_URL}/menu/${SLUG}/admin/plano?payment=cancelled`,
       })
     );
   });

@@ -105,19 +105,27 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
     ? getCategoryType(categories.find((c) => c.id === dish.category_id)?.name ?? "")
     : "other";
 
-  // Manual pairings take priority — convert to AIRecommendation shape
-  const manualRec: AIRecommendation | null = dish?.manual_pairings &&
-    Object.values(dish.manual_pairings).some((arr) => arr.length > 0)
-    ? { ...dish.manual_pairings, reasoning: "" }
-    : null;
+  // Manual pairings take priority — convert to AIRecommendation shape.
+  // Plain derived value: React Compiler memoizes it; the conditional is safe
+  // because handleAITabClick reads dish.manual_pairings as a primitive dep.
+  const manualRec: AIRecommendation | null = (() => {
+    if (!dish?.manual_pairings) return null;
+    const hasAny = Object.values(dish.manual_pairings).some((arr) => arr.length > 0);
+    return hasAny ? { ...dish.manual_pairings, reasoning: "" } : null;
+  })();
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragStartY = useRef(0);
   const dragCurrentY = useRef(0);
   const isDragging = useRef(false);
 
+  // Reset internal state when a new dish is opened. The setters here are not
+  // derived state — they're an "on open/close" lifecycle reset that also
+  // toggles body scroll. Using key={dish?.id} on the parent would lose the
+  // slide-in/out animation.
   useEffect(() => {
     if (dish) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsVisible(true);
       setAiRec(null);
       setLoadingAI(false);
@@ -436,8 +444,11 @@ export function DishDetailSheet({ dish, categories, onClose }: Props) {
 
             {/* AI tab */}
             {activeTab === "ai" && (() => {
-              const activeRec = manualRec ?? aiRec;
-              const isManual = !!manualRec;
+              // aiRec only exists after the user explicitly asked for an AI
+              // suggestion, so it wins over the manual default — otherwise
+              // "Gerar com IA" would fetch a result that never gets shown.
+              const activeRec = aiRec ?? manualRec;
+              const isManual = !aiRec && !!manualRec;
               const accentColor = isManual ? "#7eb8a4" : "#e6a81e";
 
               return (

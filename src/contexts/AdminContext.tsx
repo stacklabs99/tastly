@@ -41,7 +41,10 @@ type Props = {
 export function AdminProvider({ children, slug }: Props) {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [restaurant, setRestaurant] = useState<Restaurant>({
+  // Lazy initializer — Date.now()/new Date() are impure, so reading them in
+  // the render body would re-run on every render. Wrapping in a function makes
+  // them run exactly once when the state is first created.
+  const [restaurant, setRestaurant] = useState<Restaurant>(() => ({
     id: "",
     slug,
     name: "",
@@ -51,7 +54,7 @@ export function AdminProvider({ children, slug }: Props) {
     trial_ends_at: new Date(Date.now() + 15 * 864e5).toISOString(),
     theme: "elegante",
     created_at: new Date().toISOString(),
-  });
+  }));
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [restaurantId, setRestaurantId] = useState("");

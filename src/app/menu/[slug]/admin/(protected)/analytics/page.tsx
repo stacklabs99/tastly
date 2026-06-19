@@ -22,6 +22,9 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     let active = true;
+    // Sync resets before an async fetch — standard loading pattern. The state
+    // setters fire once per slug/days change, not in a render loop.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(false);
     getAnalytics(slug, days)

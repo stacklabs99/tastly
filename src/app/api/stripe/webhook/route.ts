@@ -28,11 +28,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  const restaurantId = (): string | null => {
+  // Resolves the restaurant id for any event object. Checked in order:
+  // 1. the object's own metadata (checkout sessions, subscriptions);
+  // 2. invoices carry the subscription metadata snapshot under
+  //    parent.subscription_details — invoice.metadata is NOT inherited from
+  //    the subscription, so without this step invoice events never match;
+  // 3. fallback to the Stripe customer id stored on the restaurant at checkout.
+  const restaurantId = async (): Promise<string | null> => {
     const obj = event.data.object as unknown as Record<string, unknown>;
-    return (
-      (obj.metadata as Record<string, string> | null)?.restaurant_id ?? null
-    );
+
+    const direct = (obj.metadata as Record<string, string> | null)?.restaurant_id;
+    if (direct) return direct;
+
+    const parent = obj.parent as
+      | { subscription_details?: { metadata?: Record<string, string> | null } | null }
+      | null
+      | undefined;
+    const fromParent = parent?.subscription_details?.metadata?.restaurant_id;
+    if (fromParent) return fromParent;
+
+    const customer = obj.customer;
+    const customerId =
+      typeof customer === "string" ? customer : (customer as { id?: string } | null)?.id;
+    if (!customerId) return null;
+    const { data } = await db()
+      .from("restaurants")
+      .select("id")
+      .eq("stripe_customer_id", customerId)
+      .single();
+    return data?.id ?? null;
   };
 
   switch (event.type) {
@@ -44,13 +68,13 @@ export async function POST(req: NextRequest) {
     }
 
     case "invoice.payment_succeeded": {
-      const rid = restaurantId();
+      const rid = await restaurantId();
       if (rid) await setRestaurantPlan(rid, "pro", true);
       break;
     }
 
     case "invoice.payment_failed": {
-      const rid = restaurantId();
+      const rid = await restaurantId();
       if (rid) {
         await db()
           .from("restaurants")
@@ -75,8 +99,7 @@ export async function POST(req: NextRequest) {
     }
 
     case "customer.subscription.deleted": {
-      const sub = event.data.object as Stripe.Subscription;
-      const rid = (sub.metadata as Record<string, string>)?.restaurant_id;
+      const rid = await restaurantId();
       if (rid) await setRestaurantPlan(rid, "starter", false);
       break;
     }

@@ -41,8 +41,10 @@ export async function createCheckoutSession(restaurantId: string, slug: string, 
     customer: customerId,
     mode: "subscription",
     line_items: [{ price: STRIPE_PRICES[interval], quantity: 1 }],
-    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/menu/${slug}/admin?payment=success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/menu/${slug}/admin?payment=cancelled`,
+    // Return to the plano page — it's where BillingClient shows the
+    // payment=success/cancelled banners (and where expired trials land anyway).
+    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/menu/${slug}/admin/plano?payment=success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/menu/${slug}/admin/plano?payment=cancelled`,
     metadata: { restaurant_id: restaurantId },
     subscription_data: { metadata: { restaurant_id: restaurantId } },
   });

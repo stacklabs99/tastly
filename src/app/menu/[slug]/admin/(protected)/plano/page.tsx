@@ -31,8 +31,12 @@ export default async function PlanoPage({ params }: Props) {
   if (!restaurant) redirect(`/menu/${slug}/admin`);
 
   const trialEndsAt = restaurant.trial_ends_at ? new Date(restaurant.trial_ends_at) : null;
+  // Server component: runs once per request, not in a client render loop.
+  // Date.now() here is request-time computation, not a purity violation.
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
   const trialDaysLeft = trialEndsAt
-    ? Math.ceil((trialEndsAt.getTime() - Date.now()) / 864e5)
+    ? Math.ceil((trialEndsAt.getTime() - now) / 864e5)
     : null;
 
   return (
